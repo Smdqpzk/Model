@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型動畫控制面板</title>
+    <title>3D 模型單次動畫展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -50,7 +50,6 @@
             justify-content: center;
             gap: 15px;
             margin-top: 10px;
-            flex-wrap: wrap;
         }
 
         button {
@@ -66,19 +65,14 @@
 
         button:hover {
             background: var(--accent);
-            transform: translateY(-2px);
         }
-
-        .btn-play { background: #28a745; }
-        .btn-stop { background: #dc3545; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>3D 模型展示 (單次動畫)</h2>
+        <h2>3D 作品 (強制單次播放)</h2>
         
-        <!-- 關鍵修正：確保這裡沒有 loop 屬性 -->
         <model-viewer 
             id="car-model"
             src="Model.glb" 
@@ -90,34 +84,32 @@
         </model-viewer>
 
         <div class="btn-group">
-            <button class="btn-play" onclick="playAnim()">▶ 播放動畫 (播一次)</button>
-            <button class="btn-stop" onclick="stopAnim()">■ 停止</button>
-            <button onclick="resetView()">重置視角</button>
+            <button style="background: #28a745;" onclick="forcePlayOnce()">▶ 播放 (強制停止循環)</button>
+            <button style="background: #dc3545;" onclick="mv.pause()">■ 停止</button>
         </div>
 
-        <div class="info-panel" style="margin-top: 20px; color: #888; font-size: 0.85em;">
-            <p>動畫播放完畢後將自動停止在最後一格。</p>
+        <div class="info-panel" style="margin-top: 20px; color: #888;">
+            <p id="status">狀態：待機中</p>
         </div>
     </div>
 
     <script>
         const mv = document.querySelector('#car-model');
+        const statusText = document.querySelector('#status');
 
-        // 播放動畫：指定名稱或使用 '*' 播放第一個動畫
-        function playAnim() {
-            // 如果你的動畫名稱不是 Animation，建議維持 '*' 比較保險
-            mv.animationName = 'OPEN'; 
-            mv.play();
-        }
-
-        // 停止動畫
-        function stopAnim() {
+        // 當動畫播完時，自動暫停模型播放
+        mv.addEventListener('finished', () => {
             mv.pause();
-        }
+            statusText.innerText = "狀態：播放完畢 (已自動停止)";
+            console.log("動畫已播完，強制暫停。");
+        });
 
-        // 重置視角
-        function resetView() {
-            mv.cameraOrbit = '0deg 75deg 105%';
+        function forcePlayOnce() {
+            // 重設動畫時間到最開始
+            mv.currentTime = 0;
+            mv.animationName = 'Animation'; // 或是 '*'
+            mv.play();
+            statusText.innerText = "狀態：播放中...";
         }
     </script>
 
