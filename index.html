@@ -46,51 +46,39 @@
         }
 
         .btn-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .anim-group {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
 
         button {
-            padding: 10px 15px;
+            padding: 12px 25px;
             border: none;
             border-radius: 8px;
             background: #0f3460;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
         }
 
         button:hover {
             background: var(--accent);
+            transform: translateY(-2px);
         }
 
-        .btn-anim {
-            background: #28a745; /* 綠色代表動畫按鈕 */
-        }
-
-        .btn-stop {
-            background: #dc3545; /* 紅色代表停止 */
-        }
+        .btn-play { background: #28a745; }
+        .btn-stop { background: #dc3545; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>3D 模型動畫控制面板</h2>
+        <h2>3D 模型展示 (單次動畫)</h2>
         
+        <!-- 關鍵修正：確保這裡沒有 loop 屬性 -->
         <model-viewer 
             id="car-model"
             src="Model.glb" 
@@ -101,44 +89,35 @@
             environment-image="neutral">
         </model-viewer>
 
-        <!-- 視角切換按鈕 -->
         <div class="btn-group">
-            <button onclick="changeView('0deg 75deg 105%')">車頭</button>
-            <button onclick="changeView('90deg 75deg 105%')">側面</button>
-            <button onclick="changeView('180deg 75deg 105%')">車尾</button>
+            <button class="btn-play" onclick="playAnim()">▶ 播放動畫 (播一次)</button>
+            <button class="btn-stop" onclick="stopAnim()">■ 停止</button>
+            <button onclick="resetView()">重置視角</button>
         </div>
 
-        <!-- 動畫控制按鈕 -->
-        <div class="anim-group">
-            <button class="btn-anim" onclick="playAnim('*')">▶ 播放預設動畫</button>
-            <button class="btn-anim" onclick="playAnim('Animation')">▶ 播放 "Animation"</button>
-            <button class="btn-stop" onclick="stopAnim()">■ 停止動畫</button>
-        </div>
-
-        <div class="info-panel">
-            <p>提示：若點擊「播放預設動畫」仍無反應，請回 Blockbench 確認導出時有包含動畫軌道。</p>
+        <div class="info-panel" style="margin-top: 20px; color: #888; font-size: 0.85em;">
+            <p>動畫播放完畢後將自動停止在最後一格。</p>
         </div>
     </div>
 
     <script>
         const mv = document.querySelector('#car-model');
 
-        // 切換視角
-        function changeView(orbit) {
-            mv.cameraOrbit = orbit;
-        }
-
-        // 播放動畫
-        function playAnim(name) {
-            mv.animationName = name;
+        // 播放動畫：指定名稱或使用 '*' 播放第一個動畫
+        function playAnim() {
+            // 如果你的動畫名稱不是 Animation，建議維持 '*' 比較保險
+            mv.animationName = 'Animation'; 
             mv.play();
-            console.log("正在嘗試播放動畫：" + name);
         }
 
         // 停止動畫
         function stopAnim() {
             mv.pause();
-            console.log("動畫已停止");
+        }
+
+        // 重置視角
+        function resetView() {
+            mv.cameraOrbit = '0deg 75deg 105%';
         }
     </script>
 
