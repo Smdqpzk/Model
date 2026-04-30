@@ -2,59 +2,172 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 模型簡報系統</title>
+    
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
     <style>
-        body { background-color: #1a1a2e; color: white; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 90%; max-width: 800px; margin-top: 30px; text-align: center; }
-        model-viewer { width: 100%; height: 400px; background: #16213e; border-radius: 15px; }
-        button { padding: 12px 30px; font-weight: bold; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 8px; }
+        :root {
+            --bg-color: #0d1117;
+            --accent: #58a6ff;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            overflow: hidden; /* 防止簡報時出現滾動條 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* 簡報顯示區域 */
+        .slide-container {
+            position: relative;
+            width: 80vw;
+            height: 70vh;
+            background: radial-gradient(circle, #1c2128 0%, #0d1117 100%);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        model-viewer {
+            width: 100%;
+            flex-grow: 1;
+            --interpolation-decay: 100; /* 讓翻轉速度更平滑快速 */
+        }
+
+        /* 標題與頁碼 */
+        .slide-header {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        .slide-title {
+            font-size: 2em;
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .page-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 1.2em;
+            opacity: 0.6;
+        }
+
+        /* 控制提示 */
+        .controls-hint {
+            margin-top: 20px;
+            color: #8b949e;
+            font-size: 0.9em;
+        }
+
+        /* 最後一頁的結束畫面 */
+        #end-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 10;
+            border-radius: 30px;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>3D 模型 (強制單次播放控制)</h2>
-        
+    <div class="slide-container">
+        <div class="slide-header">
+            <h1 id="slide-title" class="slide-title">第一頁：車子正面</h1>
+        </div>
+
         <model-viewer 
-            id="car-model"
-            src="MODEL.glb" 
+            id="presenter"
+            src="Model.glb" 
             camera-controls
             shadow-intensity="1"
-            animation-name="OPEN"> <!-- 確保這裡填入你在 Blockbench 寫的動畫名，例如 OPEN -->
+            environment-image="neutral"
+            interaction-prompt="none">
+            <div id="end-screen">簡報結束，謝謝觀賞</div>
         </model-viewer>
 
-        <div style="margin-top: 20px;">
-            <button onclick="playOnce()">▶ 執行單次動畫</button>
-        </div>
+        <div id="page-num" class="page-indicator">第 1 / 7 頁</div>
     </div>
 
-    <script>
-        const mv = document.querySelector('#car-model');
+    <div class="controls-hint">使用方向鍵 [ ← ] 或 [ → ] 切換分頁</div>
 
-        function playOnce() {
-            // 1. 先把時間歸零
-            mv.currentTime = 0;
-            // 2. 開始播放
-            mv.play();
+    <script>
+        const mv = document.querySelector('#presenter');
+        const titleText = document.querySelector('#slide-title');
+        const pageText = document.querySelector('#page-num');
+        const endScreen = document.querySelector('#end-screen');
+
+        let currentPage = 0;
+
+        // 定義每一頁的角度設定 [水平角度, 垂直角度, 縮放比例, 標題]
+        const slideData = [
+            { orbit: '0deg 75deg 105%', title: '第一頁：車子正面' },
+            { orbit: '180deg 75deg 105%', title: '第二頁：翻到背面' },
+            { orbit: '0deg 180deg 120%', title: '第三頁：翻向下面' },
+            { orbit: '90deg 75deg 105%', title: '第四頁：側面細節' },
+            { orbit: '45deg 55deg 100%', title: '第五頁：俯瞰視角' },
+            { orbit: '-45deg 75deg 110%', title: '第六頁：斜對角展示' },
+            { orbit: '0deg 75deg 105%', title: '最後一頁：結束', isEnd: true }
+        ];
+
+        function updateSlide() {
+            const data = slideData[currentPage];
             
-            // 3. 使用每一幀監聽，強制在結束前停下
-            const checkFrame = () => {
-                // 如果目前的播放時間 接近或超過 動畫總長度
-                if (mv.currentTime >= mv.duration) {
-                    mv.pause(); // 強制暫停
-                    mv.currentTime = mv.duration; // 停在最後一格
-                    return; // 結束監聽
-                }
-                requestAnimationFrame(checkFrame);
-            };
+            // 更新視角
+            mv.cameraOrbit = data.orbit;
             
-            requestAnimationFrame(checkFrame);
+            // 更新標題與頁碼
+            titleText.innerText = data.title;
+            pageText.innerText = `第 ${currentPage + 1} / ${slideData.length} 頁`;
+
+            // 處理最後一頁結束畫面
+            if (data.isEnd) {
+                endScreen.style.display = 'flex';
+            } else {
+                endScreen.style.display = 'none';
+            }
         }
 
-        // 另外一種保險機制：當監聽到 finished 事件時強制暫停
-        mv.addEventListener('finished', () => {
-            mv.pause();
+        // 監聽鍵盤事件
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') { // 下一頁
+                if (currentPage < slideData.length - 1) {
+                    currentPage++;
+                    updateSlide();
+                }
+            } else if (e.key === 'ArrowLeft') { // 上一頁
+                if (currentPage > 0) {
+                    currentPage--;
+                    updateSlide();
+                }
+            }
         });
+
+        // 初始化第一頁
+        updateSlide();
     </script>
+
 </body>
 </html>
