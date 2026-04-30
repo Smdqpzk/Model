@@ -3,11 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D簡報測試檔</title>
+    <title>簡報</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
+        .page-footer { 
+        position: absolute; 
+        bottom: 20px; 
+        left: 40px; /* 定位在左下角 */
+        color: #bdc1c6; 
+        font-family: monospace; 
+        z-index: 20;
+        pointer-events: none; /* 讓滑鼠點擊可以直接穿透文字，不影響模型操作 */
+        font-size: 1.2em;
+        background: rgba(255, 255, 255, 0.5); /* 選擇性：加點半透明背景讓數字更清晰 */
+        padding: 5px 10px;
+        border-radius: 5px;
+        }
+
         :root {
             --bg-color: #ffffff;
             --text-main: #202124;
@@ -96,7 +110,6 @@
                 camera-controls
                 touch-action="none"
                 camera-orbit="180deg 75deg 105%">
-                <div class="hint">滑鼠左鍵旋轉 | 右鍵平移 | 鍵盤左右鍵換頁</div>
             </model-viewer>
         </div>
 
@@ -104,6 +117,7 @@
             <div id="text-container" class="label-box">
                 <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
+                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                 <div id="author" class="author-info"></div>
             </div>
         </div>
@@ -113,6 +127,7 @@
 
     <script>
         const mv = document.querySelector('#presenter');
+        const imgEl = document.querySelector('#slide-img');
         const titleEl = document.querySelector('#slide-title');
         const contentEl = document.querySelector('#slide-content');
         const authorEl = document.querySelector('#author');
@@ -122,42 +137,60 @@
         let currentPage = 0;
 
         const slideData = [
-            { orbit: '180deg 75deg 105%', title: 'TANK', content: '字條', author: '設計者：[姓名]', showAuthor: true },
-            { orbit: '210deg 80deg 90%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '180deg 95deg 70%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '0deg 75deg 105%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '160deg 85deg 50%', title: '標題', content: '字條', showAuthor: false },
-            { orbit: '180deg 75deg 105%', title: '標題', content: '字條', showAuthor: true },
-            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: 'OTHER', showAuthor: true }
+            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true,hideModel: false },
+            { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because Im so boring', showAuthor: false,hideModel: true },
+            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Bettery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false,hideModel: true },
+            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '0deg 75deg 105%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '160deg 85deg 50%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '標題', content: '字條', showAuthor: true,hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: 'OTHER', showAuthor: true,hideModel: false }
         ];
-
         function updateSlide() {
             const data = slideData[currentPage];
-            
-            // 觸發文字動畫
+            const modelSection = document.querySelector('.model-section');
+            const infoSection = document.querySelector('.info-section');
+    
+            // --- 新增：處理模型顯示/隱藏與文字置中 ---
+            if (data.hideModel) {
+                modelSection.style.display = 'none'; // 隱藏左側模型區
+                infoSection.style.flex = '1';        // 讓文字區佔滿剩餘空間
+                infoSection.style.textAlign = 'center'; // 文字水平置中
+                infoSection.style.borderLeft = 'none';  // 移除左側邊框
+                textContainer.style.borderLeft = data.hideModel ? 'none' : '5px solid var(--accent-color)';
+                textContainer.style.paddingLeft = data.hideModel ? '0' : '20px';
+            } else {
+                modelSection.style.display = 'block'; // 顯示左側模型區
+                infoSection.style.flex = '1';         // 回復原本比例
+                infoSection.style.textAlign = 'left'; // 回復左對齊
+                infoSection.style.borderLeft = '1px solid #f1f3f4';
+            }
+
+            // --- 原有的更新邏輯 ---
             textContainer.classList.remove('fade-in');
-            void textContainer.offsetWidth; // 強制重繪觸發動畫
+            void textContainer.offsetWidth; 
             textContainer.classList.add('fade-in');
 
-            // 更新模型視角
             mv.cameraOrbit = data.orbit;
-            
-            // 更新文字內容
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
             pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
-
             if (data.showAuthor) {
                 authorEl.style.display = 'block';
                 authorEl.innerText = data.author || '';
             } else {
                 authorEl.style.display = 'none';
             }
-        }
-
+            if (data.image) {
+                imgEl.src = data.image;
+                imgEl.style.display = 'block'; // 有圖片就顯示
+            } else {
+                imgEl.style.display = 'none';  // 沒圖片就隱藏
+            }
+            }
+        
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
                 currentPage++;
@@ -167,7 +200,6 @@
                 updateSlide();
             }
         });
-
         updateSlide();
     </script>
 </body>
