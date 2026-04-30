@@ -3,171 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型簡報系統</title>
+    <title>3D 模型專業簡報</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #0d1117;
-            --accent: #58a6ff;
-            --text: #ffffff;
+            --bg-color: #ffffff; /* 改為白色背景 */
+            --text-main: #202124;
+            --accent-color: #1a73e8;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
 
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
+            background-color: #f8f9fa;
+            color: var(--text-main);
             margin: 0;
-            overflow: hidden; /* 防止簡報時出現滾動條 */
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* 簡報顯示區域 */
-        .slide-container {
-            position: relative;
-            width: 80vw;
-            height: 70vh;
-            background: radial-gradient(circle, #1c2128 0%, #0d1117 100%);
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        /* 簡報主容器 */
+        .slide-deck {
             display: flex;
-            flex-direction: column;
-            padding: 20px;
+            width: 95vw;
+            height: 85vh;
+            background: var(--bg-color);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        /* 左側：3D 模型區（放大） */
+        .model-section {
+            flex: 1.5; /* 模型佔據較大空間 */
+            background: radial-gradient(circle, #ffffff 0%, #eeeeee 100%);
+            border-right: 1px solid #eee;
+            position: relative;
         }
 
         model-viewer {
             width: 100%;
-            flex-grow: 1;
-            --interpolation-decay: 100; /* 讓翻轉速度更平滑快速 */
+            height: 100%;
+            --interpolation-decay: 100;
         }
 
-        /* 標題與頁碼 */
-        .slide-header {
-            text-align: left;
-            margin-bottom: 10px;
+        /* 右側：文字說明區 (TextLabel) */
+        .info-section {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
         }
 
-        .slide-title {
-            font-size: 2em;
-            margin: 0;
-            color: var(--accent);
+        .label-box {
+            border-left: 5px solid var(--accent-color);
+            padding-left: 20px;
         }
 
-        .page-indicator {
+        #slide-title {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+            color: var(--text-main);
+        }
+
+        #slide-content {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #5f6368;
+        }
+
+        .author-info {
+            margin-top: 30px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* 頁碼提示 */
+        .page-footer {
             position: absolute;
             bottom: 20px;
-            right: 30px;
-            font-size: 1.2em;
-            opacity: 0.6;
-        }
-
-        /* 控制提示 */
-        .controls-hint {
-            margin-top: 20px;
-            color: #8b949e;
+            right: 40px;
             font-size: 0.9em;
-        }
-
-        /* 最後一頁的結束畫面 */
-        #end-screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(13, 17, 23, 0.95);
-            z-index: 10;
-            border-radius: 30px;
-            align-items: center;
-            justify-content: center;
-            font-size: 3em;
-            font-weight: bold;
+            color: #9aa0a6;
         }
     </style>
 </head>
 <body>
 
-    <div class="slide-container">
-        <div class="slide-header">
-            <h1 id="slide-title" class="slide-title">第一頁：車子正面</h1>
+    <div class="slide-deck">
+        <!-- 左側模型區 -->
+        <div class="model-section">
+            <model-viewer 
+                id="presenter"
+                src="Model.glb" 
+                camera-controls
+                shadow-intensity="1"
+                environment-image="neutral"
+                interaction-prompt="none"
+                camera-orbit="0deg 75deg 105%">
+            </model-viewer>
         </div>
 
-        <model-viewer 
-            id="presenter"
-            src="Model.glb" 
-            camera-controls
-            shadow-intensity="1"
-            environment-image="neutral"
-            interaction-prompt="none">
-            <div id="end-screen">簡報結束，謝謝觀賞</div>
-        </model-viewer>
+        <!-- 右側文字區 (TextLabel) -->
+        <div class="info-section">
+            <div class="label-box">
+                <h1 id="slide-title">載入中...</h1>
+                <p id="slide-content">請使用左右方向鍵切換簡報內容。</p>
+                <div id="author" class="author-info"></div>
+            </div>
+        </div>
 
-        <div id="page-num" class="page-indicator">第 1 / 7 頁</div>
+        <div id="page-num" class="page-footer"></div>
     </div>
-
-    <div class="controls-hint">使用方向鍵 [ ← ] 或 [ → ] 切換分頁</div>
 
     <script>
         const mv = document.querySelector('#presenter');
-        const titleText = document.querySelector('#slide-title');
-        const pageText = document.querySelector('#page-num');
-        const endScreen = document.querySelector('#end-screen');
+        const titleEl = document.querySelector('#slide-title');
+        const contentEl = document.querySelector('#slide-content');
+        const authorEl = document.querySelector('#author');
+        const pageEl = document.querySelector('#page-num');
 
         let currentPage = 0;
 
-        // 定義每一頁的角度設定 [水平角度, 垂直角度, 縮放比例, 標題]
+        // 簡報內容資料庫
         const slideData = [
-            { orbit: '0deg 75deg 105%', title: '第一頁：車子正面' },
-            { orbit: '180deg 75deg 105%', title: '第二頁：翻到背面' },
-            { orbit: '0deg 180deg 120%', title: '第三頁：翻向下面' },
-            { orbit: '90deg 75deg 105%', title: '第四頁：側面細節' },
-            { orbit: '45deg 55deg 100%', title: '第五頁：俯瞰視角' },
-            { orbit: '-45deg 75deg 110%', title: '第六頁：斜對角展示' },
-            { orbit: '0deg 75deg 105%', title: '最後一頁：結束', isEnd: true }
+            { 
+                orbit: '0deg 75deg 100%', 
+                title: '3D 數位建模作品集', 
+                content: '本專案展示了利用 Blockbench 製作的高精度像素風格模型。',
+                author: '設計者：[你的姓名]', // <-- 這裡請自行填入姓名
+                showAuthor: true
+            },
+            { 
+                orbit: '180deg 75deg 100%', 
+                title: '車尾細節展示', 
+                content: '展示車輛後方的結構設計與排氣系統細節。',
+                showAuthor: false
+            },
+            { 
+                orbit: '0deg 180deg 110%', 
+                title: '底盤結構', 
+                content: '從下方視角觀察模型，展示機械結構的連動感。',
+                showAuthor: false
+            },
+            { 
+                orbit: '90deg 75deg 100%', 
+                title: '側面線條', 
+                content: '側面展現了車身的流線型與比例平衡。',
+                showAuthor: false
+            },
+            { 
+                orbit: '0deg 75deg 100%', 
+                title: '簡報結束', 
+                content: '感謝您的觀賞，如有任何問題歡迎討論。',
+                showAuthor: true
+            }
         ];
 
         function updateSlide() {
             const data = slideData[currentPage];
             
-            // 更新視角
+            // 更新 3D 視角
             mv.cameraOrbit = data.orbit;
             
-            // 更新標題與頁碼
-            titleText.innerText = data.title;
-            pageText.innerText = `第 ${currentPage + 1} / ${slideData.length} 頁`;
+            // 更新文字標籤內容
+            titleEl.innerText = data.title;
+            contentEl.innerText = data.content;
+            pageEl.innerText = `Page ${currentPage + 1} / ${slideData.length}`;
 
-            // 處理最後一頁結束畫面
-            if (data.isEnd) {
-                endScreen.style.display = 'flex';
+            // 處理第一頁的姓名顯示
+            if (data.showAuthor) {
+                authorEl.style.display = 'block';
+                authorEl.innerText = data.author || '設計者：[你的姓名]';
             } else {
-                endScreen.style.display = 'none';
+                authorEl.style.display = 'none';
             }
         }
 
-        // 監聽鍵盤事件
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') { // 下一頁
-                if (currentPage < slideData.length - 1) {
-                    currentPage++;
-                    updateSlide();
-                }
-            } else if (e.key === 'ArrowLeft') { // 上一頁
-                if (currentPage > 0) {
-                    currentPage--;
-                    updateSlide();
-                }
+            if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
+                currentPage++;
+                updateSlide();
+            } else if (e.key === 'ArrowLeft' && currentPage > 0) {
+                currentPage--;
+                updateSlide();
             }
         });
 
-        // 初始化第一頁
         updateSlide();
     </script>
-
 </body>
 </html>
