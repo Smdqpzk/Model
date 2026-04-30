@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型專業簡報 - 視角修正版</title>
+    <title>3D 模型專業簡報 - 標準比例版</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -16,7 +16,7 @@
 
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f8f9fa;
             color: var(--text-main);
             margin: 0;
             display: flex;
@@ -28,72 +28,68 @@
 
         .slide-deck {
             display: flex;
-            width: 100vw;
-            height: 100vh;
+            width: 95vw;
+            height: 85vh;
             background: var(--bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
-        /* 左側：模型特寫區 */
+        /* 左側：模型展示區（正常比例） */
         .model-section {
-            flex: 2; /* 稍微再增加模型的權重 */
-            position: relative;
+            flex: 1.2; 
             background: #ffffff;
-            overflow: hidden; 
+            position: relative;
         }
 
         model-viewer {
-            width: 100%; /* 稍微加寬，確保切掉的效果更明顯 */
-            height: 90%;
-            /* 調整這個數值可以讓模型更往左或往右移 */
-            margin-left: -25%; 
+            width: 100%; /* 回歸正常寬度 */
+            height: 100%;
+            margin-left: 0; /* 取消偏移 */
             --interpolation-decay: 100;
         }
 
-        /* 右側：文字說明區 */
+        /* 右側：說明文字區 */
         .info-section {
             flex: 1;
-            padding: 60px;
+            padding: 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             background: #ffffff;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.03);
-            z-index: 5;
             border-left: 1px solid #f1f3f4;
         }
 
         .label-box {
-            border-left: 6px solid var(--accent-color);
-            padding-left: 25px;
+            border-left: 5px solid var(--accent-color);
+            padding-left: 20px;
         }
 
-        #slide-title { font-size: 3em; margin: 0 0 15px 0; letter-spacing: -1px; }
-        #slide-content { font-size: 1.4em; line-height: 1.8; color: #5f6368; }
-        .author-info { margin-top: 40px; font-weight: bold; font-size: 1.2em; color: var(--accent-color); }
-        .page-footer { position: absolute; bottom: 30px; right: 40px; color: #bdc1c6; font-family: monospace; }
+        #slide-title { font-size: 2.5em; margin: 0 0 10px 0; }
+        #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; }
+        .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); }
+        .page-footer { position: absolute; bottom: 20px; right: 40px; color: #bdc1c6; font-size: 0.8em; }
     </style>
 </head>
 <body>
 
     <div class="slide-deck">
         <div class="model-section">
-            <!-- 移除 camera-controls 以鎖定視角，使用 camera-target 微調中心點 -->
             <model-viewer 
                 id="presenter"
                 src="Model.glb" 
-                shadow-intensity="1.5"
+                shadow-intensity="1"
                 environment-image="neutral"
                 interaction-prompt="none"
-                camera-target="0m 0m 0m"
-                camera-orbit="180deg 75deg 65%">
+                camera-orbit="180deg 75deg 105%"> <!-- 105% 確保模型完整顯示 -->
             </model-viewer>
         </div>
 
         <div class="info-section">
             <div class="label-box">
                 <h1 id="slide-title">載入中...</h1>
-                <p id="slide-content">請使用鍵盤左右方向鍵切換內容。</p>
+                <p id="slide-content">使用鍵盤左右鍵切換分頁。</p>
                 <div id="author" class="author-info"></div>
             </div>
         </div>
@@ -110,37 +106,37 @@
 
         let currentPage = 0;
 
-        // 角度修正：0deg 與 180deg 對調以修正前後方向
+        // 統一將距離設為 105%，確保不同角度都能完整拍到全車
         const slideData = [
             { 
-                orbit: '180deg 75deg 65%', 
-                title: 'EMU900 數位建模', 
-                content: '本次展示聚焦於細節刻畫與 3D 結構呈現。',
+                orbit: '180deg 75deg 105%', 
+                title: 'EMU900 建模專案', 
+                content: '本頁展示模型正面全貌，包含排障器與車頭燈光組件。',
                 author: '設計者：[你的姓名]',
                 showAuthor: true
             },
             { 
-                orbit: '0deg 85deg 55%', 
-                title: '車尾構造', 
-                content: '觀察後方連結器與排障器的工業設計細節。',
+                orbit: '0deg 75deg 105%', 
+                title: '車尾細節', 
+                content: '車尾部分完整呈現了連結器與轉向架的結構比例。',
                 showAuthor: false
             },
             { 
-                orbit: '180deg 170deg 50%', 
-                title: '精密底盤', 
-                content: '底盤部分呈現了齒輪箱與支撐結構的設計。',
+                orbit: '180deg 180deg 120%', 
+                title: '底盤全景', 
+                content: '從正下方觀察整體的動力設備與管線佈局。',
                 showAuthor: false
             },
             { 
-                orbit: '270deg 80deg 45%', 
-                title: '側面視角', 
-                content: '側面流線感在此視角下被無限放大。',
+                orbit: '270deg 80deg 110%', 
+                title: '側面全景', 
+                content: '呈現車身的長度比例與車窗配置。',
                 showAuthor: false
             },
             { 
-                orbit: '180deg 75deg 65%', 
-                title: '專案總結', 
-                content: '謝謝觀賞，這是我在開發過程中的實踐成果。',
+                orbit: '180deg 75deg 105%', 
+                title: '感謝觀賞', 
+                content: '這是本次 3D 作品展示的總結頁面。',
                 showAuthor: true
             }
         ];
