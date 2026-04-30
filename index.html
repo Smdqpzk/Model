@@ -96,17 +96,22 @@
             避免 Google Drive 的 CORS 權限問題
         -->
         <model-viewer 
-            id="car-model"
-            src="Model.glb" 
-            alt="我親手做的 3D 模型"
-            auto-rotate
-            camera-controls
-            shadow-intensity="2"
-            environment-image="neutral"
-            exposure="1">
-            
-            <div slot="poster" style="color: white; padding-top: 200px;">模型讀取中...</div>
-        </model-viewer>
+    id="car-model"
+    src="Model.glb" 
+    alt="我親手做的 3D 模型"
+    auto-rotate
+    camera-controls
+    
+    /* --- 加入下面這兩行 --- */
+    autoplay
+    animation-name="* " 
+    /* 註：animation-name 用 "*" 代表播放第一個動畫，
+       如果你有給動畫取名（如 "OpenDoor"），也可以直接填寫名稱 */
+    
+    shadow-intensity="2"
+    environment-image="neutral"
+    exposure="1">
+</model-viewer>
 
         <div class="btn-group">
             <button onclick="changeView('0deg 75deg 105%', this)">車頭視角</button>
