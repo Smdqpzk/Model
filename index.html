@@ -2,116 +2,59 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型單次動畫展示</title>
-    
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-
     <style>
-        :root {
-            --bg-color: #1a1a2e;
-            --card-bg: #16213e;
-            --accent: #e94560;
-            --text: #ffffff;
-        }
-
-        body {
-            font-family: "Microsoft JhengHei", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 900px;
-            margin-top: 30px;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 450px;
-            background: radial-gradient(circle, #252a44 0%, #1a1a2e 100%);
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            background: #0f3460;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: var(--accent);
-        }
+        body { background-color: #1a1a2e; color: white; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 90%; max-width: 800px; margin-top: 30px; text-align: center; }
+        model-viewer { width: 100%; height: 400px; background: #16213e; border-radius: 15px; }
+        button { padding: 12px 30px; font-weight: bold; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 8px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>3D 作品 (強制單次播放)</h2>
+        <h2>3D 模型 (強制單次播放控制)</h2>
         
         <model-viewer 
             id="car-model"
-            src="MODEL.glb" 
-            alt="我的 3D 模型"
-            auto-rotate
+            src="Model.glb" 
             camera-controls
-            shadow-intensity="2"
-            environment-image="neutral">
+            shadow-intensity="1"
+            animation-name="OPEN"> <!-- 確保這裡填入你在 Blockbench 寫的動畫名，例如 OPEN -->
         </model-viewer>
 
-        <div class="btn-group">
-            <button style="background: #28a745;" onclick="forcePlayOnce()">▶ 播放 (強制停止循環)</button>
-            <button style="background: #dc3545;" onclick="mv.pause()">■ 停止</button>
-        </div>
-
-        <div class="info-panel" style="margin-top: 20px; color: #888;">
-            <p id="status">狀態：待機中</p>
+        <div style="margin-top: 20px;">
+            <button onclick="playOnce()">▶ 執行單次動畫</button>
         </div>
     </div>
 
     <script>
         const mv = document.querySelector('#car-model');
-        const statusText = document.querySelector('#status');
 
-        // 當動畫播完時，自動暫停模型播放
+        function playOnce() {
+            // 1. 先把時間歸零
+            mv.currentTime = 0;
+            // 2. 開始播放
+            mv.play();
+            
+            // 3. 使用每一幀監聽，強制在結束前停下
+            const checkFrame = () => {
+                // 如果目前的播放時間 接近或超過 動畫總長度
+                if (mv.currentTime >= mv.duration) {
+                    mv.pause(); // 強制暫停
+                    mv.currentTime = mv.duration; // 停在最後一格
+                    return; // 結束監聽
+                }
+                requestAnimationFrame(checkFrame);
+            };
+            
+            requestAnimationFrame(checkFrame);
+        }
+
+        // 另外一種保險機制：當監聽到 finished 事件時強制暫停
         mv.addEventListener('finished', () => {
             mv.pause();
-            statusText.innerText = "狀態：播放完畢 (已自動停止)";
-            console.log("動畫已播完，強制暫停。");
         });
-
-        function forcePlayOnce() {
-            // 重設動畫時間到最開始
-            mv.currentTime = 0;
-            mv.animationName = 'Animation'; // 或是 '*'
-            mv.play();
-            statusText.innerText = "狀態：播放中...";
-        }
     </script>
-
 </body>
 </html>
