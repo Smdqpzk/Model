@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D 模型導覽控制面板</title>
     
-    <!-- 引入 3D 模型解析組件 -->
-    <script type="module" src="Model.glb"></script>
+    <!-- 1. 修正：引入正確的 3D 模型解析組件庫，而不是指向 GLB 檔案 -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
@@ -38,14 +38,13 @@
             text-align: center;
         }
 
-        /* 3D 視窗設定 */
         model-viewer {
             width: 100%;
             height: 450px;
             background: radial-gradient(circle, #252a44 0%, #1a1a2e 100%);
             border-radius: 15px;
             margin-bottom: 20px;
-            --interpolation-decay: 200; /* 運鏡平滑度 */
+            --interpolation-decay: 200;
         }
 
         .btn-group {
@@ -91,27 +90,21 @@
     <div class="container">
         <h2>我的 3D 作品展示</h2>
         
-        <!-- 
-            src 說明：直接讀取同資料夾下的 Model.glb 
-            避免 Google Drive 的 CORS 權限問題
-        -->
+        <!-- 2. 動畫設定：src 必須是大寫 Model.glb，並加上 autoplay 與動畫名稱 -->
         <model-viewer 
-    id="car-model"
-    src="Model.glb" 
-    alt="我親手做的 3D 模型"
-    auto-rotate
-    camera-controls
-    
-    /* --- 加入下面這兩行 --- */
-    autoplay
-    animation-name="Animation" 
-    /* 註：animation-name 用 "*" 代表播放第一個動畫，
-       如果你有給動畫取名（如 "OpenDoor"），也可以直接填寫名稱 */
-    
-    shadow-intensity="2"
-    environment-image="neutral"
-    exposure="1">
-</model-viewer>
+            id="car-model"
+            src="Model.glb" 
+            alt="我親手做的 3D 模型"
+            auto-rotate
+            camera-controls
+            autoplay
+            animation-name="OPEN"
+            shadow-intensity="2"
+            environment-image="neutral"
+            exposure="1">
+            
+            <div slot="poster" style="color: white; padding-top: 200px;">模型載入中...</div>
+        </model-viewer>
 
         <div class="btn-group">
             <button onclick="changeView('0deg 75deg 105%', this)">車頭視角</button>
@@ -121,21 +114,19 @@
         </div>
 
         <div class="info-panel">
-            <p>提示：請使用 VS Code 的 Live Server 開啟此檔案，以確保模型能正常顯示。</p>
+            <p>提示：若動畫未播放，請確認 Blockbench 導出時有勾選「動畫」，且名稱為 "Animation"。</p>
         </div>
     </div>
 
     <script>
         const modelViewer = document.querySelector('#car-model');
 
-        // 切換到特定角度
         function changeView(orbit, btn) {
-            modelViewer.autoRotate = false; // 定位時先停止自轉
+            modelViewer.autoRotate = false;
             modelViewer.cameraOrbit = orbit;
             updateButtonStyles(btn);
         }
 
-        // 切換自轉
         function toggleAutoRotate(btn) {
             modelViewer.autoRotate = !modelViewer.autoRotate;
             btn.innerText = modelViewer.autoRotate ? "自動旋轉：開" : "自動旋轉：關";
