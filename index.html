@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型專業簡報</title>
+    <title>3D 模型專業簡報 - 特寫模式</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #ffffff; /* 改為白色背景 */
+            --bg-color: #ffffff;
             --text-main: #202124;
             --accent-color: #1a73e8;
-            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
 
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f0f2f5;
             color: var(--text-main);
             margin: 0;
             display: flex;
@@ -27,95 +26,73 @@
             overflow: hidden;
         }
 
-        /* 簡報主容器 */
         .slide-deck {
             display: flex;
-            width: 95vw;
-            height: 85vh;
+            width: 100vw; /* 填滿螢幕 */
+            height: 100vh;
             background: var(--bg-color);
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
             overflow: hidden;
         }
 
-        /* 左側：3D 模型區（放大） */
+        /* 左側：模型特寫區 */
         .model-section {
-            flex: 1.5; /* 模型佔據較大空間 */
-            background: radial-gradient(circle, #ffffff 0%, #eeeeee 100%);
-            border-right: 1px solid #eee;
+            flex: 1.8; /* 再次加大模型比例 */
             position: relative;
+            background: #ffffff;
+            /* 讓溢出的模型部分隱藏，營造「被切掉」的感覺 */
+            overflow: hidden; 
         }
 
         model-viewer {
-            width: 100%;
+            width: 130%; /* 寬度超過容器，讓模型看起來更大 */
             height: 100%;
+            margin-left: -15%; /* 往左偏移，平衡視覺 */
             --interpolation-decay: 100;
         }
 
-        /* 右側：文字說明區 (TextLabel) */
+        /* 右側：文字說明區 */
         .info-section {
             flex: 1;
-            padding: 40px;
+            padding: 60px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             background: #ffffff;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05); /* 增加陰影區隔感 */
+            z-index: 5;
         }
 
         .label-box {
-            border-left: 5px solid var(--accent-color);
-            padding-left: 20px;
+            border-left: 6px solid var(--accent-color);
+            padding-left: 25px;
         }
 
-        #slide-title {
-            font-size: 2.5em;
-            margin: 0 0 10px 0;
-            color: var(--text-main);
-        }
-
-        #slide-content {
-            font-size: 1.2em;
-            line-height: 1.6;
-            color: #5f6368;
-        }
-
-        .author-info {
-            margin-top: 30px;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-
-        /* 頁碼提示 */
-        .page-footer {
-            position: absolute;
-            bottom: 20px;
-            right: 40px;
-            font-size: 0.9em;
-            color: #9aa0a6;
-        }
+        #slide-title { font-size: 3em; margin: 0 0 15px 0; }
+        #slide-content { font-size: 1.4em; line-height: 1.8; color: #5f6368; }
+        .author-info { margin-top: 40px; font-weight: bold; font-size: 1.2em; color: var(--accent-color); }
+        .page-footer { position: absolute; bottom: 30px; right: 40px; color: #bdc1c6; }
     </style>
 </head>
 <body>
 
     <div class="slide-deck">
-        <!-- 左側模型區 -->
         <div class="model-section">
+            <!-- 關鍵修正：移除 camera-controls 以禁止滑鼠轉動 -->
             <model-viewer 
                 id="presenter"
                 src="Model.glb" 
-                camera-controls
-                shadow-intensity="1"
+                shadow-intensity="1.5"
                 environment-image="neutral"
                 interaction-prompt="none"
-                camera-orbit="0deg 75deg 105%">
+                /* 預設視角更靠近 (距離改為 60%) */
+                camera-orbit="0deg 75deg 60%">
             </model-viewer>
         </div>
 
-        <!-- 右側文字區 (TextLabel) -->
         <div class="info-section">
             <div class="label-box">
                 <h1 id="slide-title">載入中...</h1>
-                <p id="slide-content">請使用左右方向鍵切換簡報內容。</p>
+                <p id="slide-content">請使用鍵盤左右方向鍵切換內容。</p>
                 <div id="author" class="author-info"></div>
             </div>
         </div>
@@ -132,56 +109,51 @@
 
         let currentPage = 0;
 
-        // 簡報內容資料庫
+        // 調整為特寫角度 (第三個參數 50%-70% 會讓模型看起來非常大)
         const slideData = [
             { 
-                orbit: '0deg 75deg 100%', 
-                title: '3D 數位建模作品集', 
-                content: '本專案展示了利用 Blockbench 製作的高精度像素風格模型。',
-                author: '設計者：[你的姓名]', // <-- 這裡請自行填入姓名
+                orbit: '0deg 75deg 65%', 
+                title: 'EMU900 數位建模', 
+                content: '本次展示聚焦於細節刻畫與 3D 結構呈現。',
+                author: '設計者：[你的姓名]',
                 showAuthor: true
             },
             { 
-                orbit: '180deg 75deg 100%', 
-                title: '車尾細節展示', 
-                content: '展示車輛後方的結構設計與排氣系統細節。',
+                orbit: '180deg 85deg 55%', 
+                title: '車尾動力構造', 
+                content: '透過近距離檢視，可以觀察到後方排障器與連結器的細節。',
                 showAuthor: false
             },
             { 
-                orbit: '0deg 180deg 110%', 
-                title: '底盤結構', 
-                content: '從下方視角觀察模型，展示機械結構的連動感。',
+                orbit: '0deg 170deg 50%', 
+                title: '精密底盤', 
+                content: '底盤部分呈現了齒輪箱與支撐結構的設計。',
                 showAuthor: false
             },
             { 
-                orbit: '90deg 75deg 100%', 
-                title: '側面線條', 
-                content: '側面展現了車身的流線型與比例平衡。',
+                orbit: '90deg 80deg 45%', 
+                title: '側面結構', 
+                content: '側面流線感在此視角下被無限放大。',
                 showAuthor: false
             },
             { 
-                orbit: '0deg 75deg 100%', 
-                title: '簡報結束', 
-                content: '感謝您的觀賞，如有任何問題歡迎討論。',
+                orbit: '0deg 75deg 65%', 
+                title: '專案總結', 
+                content: '謝謝觀賞，這是我在開發過程中的實踐成果。',
                 showAuthor: true
             }
         ];
 
         function updateSlide() {
             const data = slideData[currentPage];
-            
-            // 更新 3D 視角
             mv.cameraOrbit = data.orbit;
-            
-            // 更新文字標籤內容
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
-            pageEl.innerText = `Page ${currentPage + 1} / ${slideData.length}`;
+            pageEl.innerText = `Slide ${currentPage + 1} / ${slideData.length}`;
 
-            // 處理第一頁的姓名顯示
             if (data.showAuthor) {
                 authorEl.style.display = 'block';
-                authorEl.innerText = data.author || '設計者：[你的姓名]';
+                authorEl.innerText = data.author || '';
             } else {
                 authorEl.style.display = 'none';
             }
