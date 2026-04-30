@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型導覽控制面板</title>
+    <title>3D 模型動畫控制面板</title>
     
-    <!-- 1. 修正：引入正確的 3D 模型解析組件庫，而不是指向 GLB 檔案 -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
@@ -44,98 +43,102 @@
             background: radial-gradient(circle, #252a44 0%, #1a1a2e 100%);
             border-radius: 15px;
             margin-bottom: 20px;
-            --interpolation-decay: 200;
         }
 
         .btn-group {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
             margin-top: 10px;
         }
 
+        .anim-group {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         button {
-            padding: 12px;
+            padding: 10px 15px;
             border: none;
             border-radius: 8px;
             background: #0f3460;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
         }
 
         button:hover {
             background: var(--accent);
-            transform: translateY(-2px);
         }
 
-        .active {
-            background: var(--accent);
-            box-shadow: 0 0 15px var(--accent);
+        .btn-anim {
+            background: #28a745; /* 綠色代表動畫按鈕 */
         }
 
-        .info-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            font-size: 0.9em;
-            color: #aaa;
+        .btn-stop {
+            background: #dc3545; /* 紅色代表停止 */
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>我的 3D 作品展示</h2>
+        <h2>3D 模型動畫控制面板</h2>
         
-        <!-- 2. 動畫設定：src 必須是大寫 Model.glb，並加上 autoplay 與動畫名稱 -->
         <model-viewer 
             id="car-model"
             src="Model.glb" 
-            alt="我親手做的 3D 模型"
+            alt="我的 3D 模型"
             auto-rotate
             camera-controls
-            autoplay
-            animation-name="OPEN"
             shadow-intensity="2"
-            environment-image="neutral"
-            exposure="1">
-            
-            <div slot="poster" style="color: white; padding-top: 200px;">模型載入中...</div>
+            environment-image="neutral">
         </model-viewer>
 
+        <!-- 視角切換按鈕 -->
         <div class="btn-group">
-            <button onclick="changeView('0deg 75deg 105%', this)">車頭視角</button>
-            <button onclick="changeView('90deg 75deg 105%', this)">側面視角</button>
-            <button onclick="changeView('180deg 75deg 105%', this)">車尾視角</button>
-            <button onclick="toggleAutoRotate(this)">自動旋轉：開</button>
+            <button onclick="changeView('0deg 75deg 105%')">車頭</button>
+            <button onclick="changeView('90deg 75deg 105%')">側面</button>
+            <button onclick="changeView('180deg 75deg 105%')">車尾</button>
+        </div>
+
+        <!-- 動畫控制按鈕 -->
+        <div class="anim-group">
+            <button class="btn-anim" onclick="playAnim('*')">▶ 播放預設動畫</button>
+            <button class="btn-anim" onclick="playAnim('Animation')">▶ 播放 "Animation"</button>
+            <button class="btn-stop" onclick="stopAnim()">■ 停止動畫</button>
         </div>
 
         <div class="info-panel">
-            <p>提示：若動畫未播放，請確認 Blockbench 導出時有勾選「動畫」，且名稱為 "Animation"。</p>
+            <p>提示：若點擊「播放預設動畫」仍無反應，請回 Blockbench 確認導出時有包含動畫軌道。</p>
         </div>
     </div>
 
     <script>
-        const modelViewer = document.querySelector('#car-model');
+        const mv = document.querySelector('#car-model');
 
-        function changeView(orbit, btn) {
-            modelViewer.autoRotate = false;
-            modelViewer.cameraOrbit = orbit;
-            updateButtonStyles(btn);
+        // 切換視角
+        function changeView(orbit) {
+            mv.cameraOrbit = orbit;
         }
 
-        function toggleAutoRotate(btn) {
-            modelViewer.autoRotate = !modelViewer.autoRotate;
-            btn.innerText = modelViewer.autoRotate ? "自動旋轉：開" : "自動旋轉：關";
-            updateButtonStyles(btn);
+        // 播放動畫
+        function playAnim(name) {
+            mv.animationName = name;
+            mv.play();
+            console.log("正在嘗試播放動畫：" + name);
         }
 
-        function updateButtonStyles(activeBtn) {
-            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            activeBtn.classList.add('active');
+        // 停止動畫
+        function stopAnim() {
+            mv.pause();
+            console.log("動畫已停止");
         }
     </script>
 
