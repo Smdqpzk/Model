@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 測試簡報</title>
+    <title>3D簡報測試檔</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -34,23 +34,22 @@
             border-radius: 12px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.1);
             overflow: hidden;
-        }
-
-        /* 左側：模型展示區（正常比例） */
-        .model-section {
-            flex: 1.2; 
-            background: #ffffff;
             position: relative;
         }
 
+        /* 左側：模型展示區 */
+        .model-section {
+            flex: 1.2; 
+            background: #ffffff;
+        }
+
         model-viewer {
-            width: 100%; /* 回歸正常寬度 */
+            width: 100%;
             height: 100%;
-            margin-left: 0; /* 取消偏移 */
             --interpolation-decay: 100;
         }
 
-        /* 右側：說明文字區 */
+        /* 右側：文字說明區 */
         .info-section {
             flex: 1;
             padding: 50px;
@@ -59,6 +58,17 @@
             justify-content: center;
             background: #ffffff;
             border-left: 1px solid #f1f3f4;
+            z-index: 10;
+        }
+
+        /* 文字切換動畫 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .label-box {
@@ -66,10 +76,12 @@
             padding-left: 20px;
         }
 
-        #slide-title { font-size: 2.5em; margin: 0 0 10px 0; }
-        #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; }
-        .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); }
-        .page-footer { position: absolute; bottom: 20px; right: 40px; color: #bdc1c6; font-size: 0.8em; }
+        #slide-title { font-size: 2.5em; margin: 0 0 10px 0; color: var(--text-main); }
+        #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; min-height: 100px; }
+        .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
+        .page-footer { position: absolute; bottom: 20px; right: 40px; color: #bdc1c6; font-family: monospace; }
+        
+        .hint { position: absolute; bottom: 15px; left: 15px; font-size: 0.7em; color: #ddd; }
     </style>
 </head>
 <body>
@@ -81,15 +93,17 @@
                 src="Model.glb" 
                 shadow-intensity="1"
                 environment-image="neutral"
-                interaction-prompt="none"
-                camera-orbit="180deg 75deg 105%"> <!-- 105% 確保模型完整顯示 -->
+                camera-controls
+                touch-action="none"
+                camera-orbit="180deg 75deg 105%">
+                <div class="hint">滑鼠左鍵旋轉 | 右鍵平移 | 鍵盤左右鍵換頁</div>
             </model-viewer>
         </div>
 
         <div class="info-section">
-            <div class="label-box">
+            <div id="text-container" class="label-box">
                 <h1 id="slide-title">載入中...</h1>
-                <p id="slide-content">使用鍵盤左右鍵切換分頁。</p>
+                <p id="slide-content"></p>
                 <div id="author" class="author-info"></div>
             </div>
         </div>
@@ -103,50 +117,38 @@
         const contentEl = document.querySelector('#slide-content');
         const authorEl = document.querySelector('#author');
         const pageEl = document.querySelector('#page-num');
+        const textContainer = document.querySelector('#text-container');
 
         let currentPage = 0;
 
-        // 統一將距離設為 105%，確保不同角度都能完整拍到全車
         const slideData = [
-            { 
-                orbit: '180deg 75deg 105%', 
-                title: '簡報名稱', 
-                content: '---',
-                author: '設計者：名子',
-                showAuthor: true
-            },
-            { 
-                orbit: '0deg 75deg 105%', 
-                title: '車尾細節', 
-                content: '---',
-                showAuthor: false
-            },
-            { 
-                orbit: '180deg 180deg 120%', 
-                title: '底盤全景', 
-                content: '---',
-                showAuthor: false
-            },
-            { 
-                orbit: '270deg 80deg 110%', 
-                title: '側面全景', 
-                content: '---',
-                showAuthor: false
-            },
-            { 
-                orbit: '180deg 75deg 105%', 
-                title: '感謝觀賞', 
-                content: '這是本次 3D 作品展示的總結頁面。',
-                showAuthor: true
-            }
+            { orbit: '180deg 75deg 105%', title: 'TANK', content: '字條', author: '設計者：[姓名]', showAuthor: true },
+            { orbit: '210deg 80deg 90%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '180deg 95deg 70%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '0deg 75deg 105%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '160deg 85deg 50%', title: '標題', content: '字條', showAuthor: false },
+            { orbit: '180deg 75deg 105%', title: '標題', content: '字條', showAuthor: true },
+            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: '聯絡資訊：[你的 Email]', showAuthor: true }
         ];
 
         function updateSlide() {
             const data = slideData[currentPage];
+            
+            // 觸發文字動畫
+            textContainer.classList.remove('fade-in');
+            void textContainer.offsetWidth; // 強制重繪觸發動畫
+            textContainer.classList.add('fade-in');
+
+            // 更新模型視角
             mv.cameraOrbit = data.orbit;
+            
+            // 更新文字內容
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
-            pageEl.innerText = `SLIDE ${currentPage + 1} / ${slideData.length}`;
+            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
 
             if (data.showAuthor) {
                 authorEl.style.display = 'block';
