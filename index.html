@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>測試A</title>
+    <title>測試F</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -176,13 +176,12 @@
         mv.play(); 
     
         // 設定這段動畫只跑 250ms 就停在 0.25s 的位置
-        animationTimeout = setTimeout(() => {
+        setTimeout(() => {
             mv.pause();
             mv.currentTime = 0.25;
         }, 250);
          
     } else {
-        if (animationTimeout) clearTimeout(animationTimeout); // 離開此頁時也要取消計時
         mv.pause();
         mv.currentTime = 0; 
     }
