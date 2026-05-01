@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>測試J</title>
+    <title>測試K</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -172,33 +172,8 @@
     }
 
     if (data.playAnimation) {
-       mv.pause();
-    mv.currentTime = 0;
-
-    // 2. 使用自定義變數來控制時間（這比 play() 更精準）
-    let targetTime = 0.25; // 目標時間
-    let startTime = performance.now();
-    let duration = 250; // 動畫持續時間 (毫秒)
-
-    function animateFrame(now) {
-        let elapsed = now - startTime;
-        let progress = Math.min(elapsed / duration, 1);
-        
-        // 手動設定當前時間
-        mv.currentTime = progress * targetTime;
-
-        if (progress < 1 && data.playAnimation) {
-            requestAnimationFrame(animateFrame);
-        } else {
-            // 到達目標，徹底定格
-            mv.pause();
-            mv.currentTime = targetTime;
-        }
-    }
-    
-    // 啟動手動動畫
-    requestAnimationFrame(animateFrame);
-         
+        mv.pause();
+        mv.currentTime = 0.25;
     } else {
         mv.pause();
         mv.currentTime = 0; 
