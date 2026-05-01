@@ -172,11 +172,32 @@
     }
 
     if (data.playAnimation) {
-        mv.currentTime = 0; // 從頭開始
-        mv.play(); 
+       mv.pause();
+    mv.currentTime = 0;
+
+    // 2. 使用自定義變數來控制時間（這比 play() 更精準）
+    let targetTime = 1; // 目標時間
+    let startTime = performance.now();
+    let duration = 1000; // 動畫持續時間 (毫秒)
+
+    function animateFrame(now) {
+        let elapsed = now - startTime;
+        let progress = Math.min(elapsed / duration, 1);
+        
+        // 手動設定當前時間
+        mv.currentTime = progress * targetTime;
+
+        if (progress < 1 && data.playAnimation) {
+            requestAnimationFrame(animateFrame);
+        } else {
+            // 到達目標，徹底定格
+            mv.pause();
+            mv.currentTime = targetTime;
+        }
+    }
     
-        mv.pause();
-        mv.currentTime = 1;
+    // 啟動手動動畫
+    requestAnimationFrame(animateFrame);
          
     } else {
         mv.pause();
