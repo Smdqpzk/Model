@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>簡報</title>
+    <title>測試A</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -109,6 +109,7 @@
                 environment-image="neutral"
                 camera-controls
                 touch-action="none"
+                autoplay  <!-- 新增這行 -->
                 camera-orbit="180deg 75deg 105%">
             </model-viewer>
         </div>
@@ -139,8 +140,8 @@
         const slideData = [
             { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true,hideModel: false },
             { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because Im so boring', showAuthor: false,hideModel: true },
-            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Bettery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false,hideModel: true },
-            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Battery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false,hideModel: true },
+            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false,hideModel: false,playAnimation: true },
             { orbit: '0deg 75deg 105%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
             { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
             { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
@@ -154,6 +155,12 @@
             const infoSection = document.querySelector('.info-section');
     
             // --- 新增：處理模型顯示/隱藏與文字置中 ---
+            if (data.playAnimation) {
+                mv.play(); // 開始播放動畫
+            } else {
+                mv.pause(); // 停止播放動畫
+            }
+
             if (data.hideModel) {
                 modelSection.style.display = 'none'; // 隱藏左側模型區
                 infoSection.style.flex = '1';        // 讓文字區佔滿剩餘空間
