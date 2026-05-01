@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>測試A</title>
+    <title>測試B</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -150,54 +150,58 @@
             { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: 'OTHER', showAuthor: true,hideModel: false }
         ];
         function updateSlide() {
-            const data = slideData[currentPage];
-            const modelSection = document.querySelector('.model-section');
-            const infoSection = document.querySelector('.info-section');
-    
-            // --- 新增：處理模型顯示/隱藏與文字置中 ---
-            if (data.playAnimation) {
-                mv.play(); // 開始播放動畫
-                mv.loop = false;
-            } else {
-                mv.animationName = 'IDLE';
-            }
+    const data = slideData[currentPage];
+    const modelSection = document.querySelector('.model-section');
+    const infoSection = document.querySelector('.info-section');
 
-            if (data.hideModel) {
-                modelSection.style.display = 'none'; // 隱藏左側模型區
-                infoSection.style.flex = '1';        // 讓文字區佔滿剩餘空間
-                infoSection.style.textAlign = 'center'; // 文字水平置中
-                infoSection.style.borderLeft = 'none';  // 移除左側邊框
-                textContainer.style.borderLeft = data.hideModel ? 'none' : '5px solid var(--accent-color)';
-                textContainer.style.paddingLeft = data.hideModel ? '0' : '20px';
-            } else {
-                modelSection.style.display = 'block'; // 顯示左側模型區
-                infoSection.style.flex = '1';         // 回復原本比例
-                infoSection.style.textAlign = 'left'; // 回復左對齊
-                infoSection.style.borderLeft = '1px solid #f1f3f4';
-            }
+    // 1. 處理模型隱藏/顯示
+    if (data.hideModel) {
+        modelSection.style.display = 'none';
+        infoSection.style.flex = '1'; 
+        infoSection.style.textAlign = 'center';
+        infoSection.style.borderLeft = 'none';
+        textContainer.style.borderLeft = 'none';
+        textContainer.style.paddingLeft = '0';
+    } else {
+        modelSection.style.display = 'block';
+        infoSection.style.flex = '1';
+        infoSection.style.textAlign = 'left';
+        infoSection.style.borderLeft = '1px solid #f1f3f4';
+        textContainer.style.borderLeft = '5px solid var(--accent-color)';
+        textContainer.style.paddingLeft = '20px';
+    }
 
-            // --- 原有的更新邏輯 ---
-            textContainer.classList.remove('fade-in');
-            void textContainer.offsetWidth; 
-            textContainer.classList.add('fade-in');
+    // 2. 處理內建動畫 (重點修正區)
+    if (data.playAnimation) {
+        mv.loop = false; 
+        mv.play(); 
+    } else {
+        mv.pause();
+        mv.currentTime = 0; 
+    }
 
-            mv.cameraOrbit = data.orbit;
-            titleEl.innerText = data.title;
-            contentEl.innerText = data.content;
-            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
-            if (data.showAuthor) {
-                authorEl.style.display = 'block';
-                authorEl.innerText = data.author || '';
-            } else {
-                authorEl.style.display = 'none';
-            }
-            if (data.image) {
-                imgEl.src = data.image;
-                imgEl.style.display = 'block'; // 有圖片就顯示
-            } else {
-                imgEl.style.display = 'none';  // 沒圖片就隱藏
-            }
-            }
+    // 3. 更新文字與圖片
+    textContainer.classList.remove('fade-in');
+    void textContainer.offsetWidth; 
+    textContainer.classList.add('fade-in');
+
+    mv.cameraOrbit = data.orbit;
+    titleEl.innerText = data.title;
+    contentEl.innerText = data.content;
+    pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
+
+    // 4. 處理圖片
+    if (data.image) {
+        imgEl.src = data.image;
+        imgEl.style.display = 'block';
+    } else {
+        imgEl.style.display = 'none';
+    }
+
+    // 5. 作者顯示
+    authorEl.style.display = data.showAuthor ? 'block' : 'none';
+    if (data.showAuthor) authorEl.innerText = data.author || '';
+}
         
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
