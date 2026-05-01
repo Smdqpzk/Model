@@ -109,7 +109,7 @@
                 environment-image="neutral"
                 camera-controls
                 touch-action="none"
-                autoplay
+                autoplay=""
                 camera-orbit="180deg 75deg 105%">
             </model-viewer>
         </div>
@@ -157,8 +157,9 @@
             // --- 新增：處理模型顯示/隱藏與文字置中 ---
             if (data.playAnimation) {
                 mv.play(); // 開始播放動畫
+                mv.loop = false;
             } else {
-                mv.pause(); // 停止播放動畫
+                mv.animationName = 'IDLE';
             }
 
             if (data.hideModel) {
