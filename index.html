@@ -176,9 +176,9 @@
     mv.currentTime = 0;
 
     // 2. 使用自定義變數來控制時間（這比 play() 更精準）
-    let targetTime = 1; // 目標時間
+    let targetTime = 0.25; // 目標時間
     let startTime = performance.now();
-    let duration = 1000; // 動畫持續時間 (毫秒)
+    let duration = 250; // 動畫持續時間 (毫秒)
 
     function animateFrame(now) {
         let elapsed = now - startTime;
