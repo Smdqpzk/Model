@@ -3,17 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank V3 - 互動簡報</title>
+    <title>測試A</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
+        .page-footer { 
+        position: absolute; 
+        bottom: 20px; 
+        left: 40px;
+        color: #585858; 
+        font-family: monospace; 
+        z-index: 20;
+        pointer-events: none;
+        font-size: 1.2em;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 5px 10px;
+        border-radius: 5px;
+        }
+
         :root {
             --bg-color: #ffffff;
             --text-main: #202124;
             --accent-color: #1a73e8;
-            --success-color: #34a853;
-            --glow-color: rgba(26, 115, 232, 0.4);
         }
 
         body {
@@ -40,23 +52,15 @@
         }
 
         /* 左側：模型展示區 */
-        .model-section { 
+        .model-section {
             flex: 1.2; 
-            background: #ffffff; 
-            position: relative; 
-            transition: all 0.5s ease;
+            background: #ffffff;
         }
 
-        model-viewer { 
-            width: 100%; 
-            height: 100%; 
-            --interpolation-decay: 100; 
-            transition: filter 0.3s ease;
-        }
-
-        /* 模型發光效果 (CSS Filter) */
-        .model-glow {
-            filter: brightness(1.1) drop-shadow(0 0 15px var(--glow-color));
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            --interpolation-decay: 100;
         }
 
         /* 右側：文字說明區 */
@@ -71,52 +75,27 @@
             z-index: 10;
         }
 
-        /* 熱點樣式 */
-        .hotspot {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            background-color: var(--accent-color);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: pointer;
-            display: none;
-            transition: all 0.3s ease;
+        /* 文字切換動畫 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        /* 點擊後變綠色 */
-        .hotspot.is-active {
-            background-color: var(--success-color);
-            transform: scale(1.3);
-            box-shadow: 0 0 15px var(--success-color);
-        }
-
-        .annotation {
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            padding: 5px 10px;
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            font-size: 14px;
-            font-weight: bold;
-            pointer-events: none;
-        }
-
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .label-box { border-left: 5px solid var(--accent-color); padding-left: 20px; }
+        .label-box {
+            border-left: 5px solid var(--accent-color);
+            padding-left: 20px;
+        }
+
         #slide-title { font-size: 2.5em; margin: 0 0 10px 0; color: var(--text-main); }
         #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; min-height: 100px; }
         .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
         .page-footer { position: absolute; bottom: 20px; right: 40px; color: #424242; font-family: monospace; }
+        
+        .hint { position: absolute; bottom: 15px; left: 15px; font-size: 0.7em; color: #ddd; }
     </style>
 </head>
 <body>
@@ -131,12 +110,6 @@
                 camera-controls
                 touch-action="none"
                 camera-orbit="180deg 75deg 105%">
-                
-                <!-- ESP32 熱點 -->
-                <button slot="hotspot-esp32" class="hotspot" id="esp32-node"
-                    data-position="0m 0.05m 0.05m" data-normal="0m 0m 1m">
-                    <div class="annotation">核心控制器：ESP32</div>
-                </button>
             </model-viewer>
         </div>
 
@@ -144,7 +117,7 @@
             <div id="text-container" class="label-box">
                 <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
-                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 8px;">
+                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                 <div id="author" class="author-info"></div>
             </div>
         </div>
@@ -160,107 +133,93 @@
         const authorEl = document.querySelector('#author');
         const pageEl = document.querySelector('#page-num');
         const textContainer = document.querySelector('#text-container');
-        const hotspot = document.querySelector('#esp32-node');
 
         let currentPage = 0;
-        let animTimer = null;
 
         const slideData = [
-            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false },
-            { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because Im so boring', showAuthor: false, hideModel: true },
-            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: '基於 ESP32 與 L298N 驅動器的硬體架構。', showAuthor: false, hideModel: true },
-            { 
-                orbit: '90deg 75deg 100%', 
-                title: '機械與感測器', 
-                content: '自動掃描硬體狀態，確認 ESP32 模組位置。', 
-                showAuthor: false, 
-                hideModel: false, 
-                playAnimation: true, 
-                showHotspot: true,
-                shouldGlow: true // 新增標記：這頁要發光
-            },
-            { orbit: '210deg 80deg 90%', title: '標題', content: '字條', showAuthor: false, hideModel: false },
-            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '謝謝收看', author: '項正宇', showAuthor: true, hideModel: false }
+            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true,hideModel: false },
+            { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because Im so boring', showAuthor: false,hideModel: true },
+            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Battery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false,hideModel: true },
+            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false,hideModel: false,playAnimation: true,targetNode: 'ESP32' },
+            { orbit: '210deg 80deg 90%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '160deg 85deg 50%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '標題', content: '字條', showAuthor: true,hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: 'OTHER', showAuthor: true,hideModel: false }
         ];
 
-        // 熱點點擊變色
-        hotspot.addEventListener('click', () => {
-            hotspot.classList.toggle('is-active');
-        });
-
         function updateSlide() {
-            const data = slideData[currentPage];
-            const modelSection = document.querySelector('.model-section');
-            const infoSection = document.querySelector('.info-section');
+    const data = slideData[currentPage];
+    const modelSection = document.querySelector('.model-section');
+    const infoSection = document.querySelector('.info-section');
 
-            // 狀態重置
-            if (animTimer) clearTimeout(animTimer);
-            hotspot.classList.remove('is-active');
-            hotspot.style.display = 'none';
-            mv.classList.remove('model-glow');
-            mv.exposure = 1;
+    // 1. 處理模型隱藏/顯示
+    if (data.hideModel) {
+        modelSection.style.display = 'none';
+        infoSection.style.flex = '1'; 
+        infoSection.style.textAlign = 'center';
+        infoSection.style.borderLeft = 'none';
+        textContainer.style.borderLeft = 'none';
+        textContainer.style.paddingLeft = '0';
+    } else {
+        modelSection.style.display = 'block';
+        infoSection.style.flex = '1';
+        infoSection.style.textAlign = 'left';
+        infoSection.style.borderLeft = '1px solid #f1f3f4';
+        textContainer.style.borderLeft = '5px solid var(--accent-color)';
+        textContainer.style.paddingLeft = '20px';
+    }
 
-            // 1. 模型隱藏邏輯
-            if (data.hideModel) {
-                modelSection.style.display = 'none';
-                infoSection.style.flex = '1'; 
-                infoSection.style.textAlign = 'center';
-                infoSection.style.borderLeft = 'none';
-                textContainer.style.borderLeft = 'none';
-                textContainer.style.paddingLeft = '0';
-            } else {
-                modelSection.style.display = 'block';
-                infoSection.style.flex = '1';
-                infoSection.style.textAlign = 'left';
-                infoSection.style.borderLeft = '1px solid #f1f3f4';
-                textContainer.style.borderLeft = '5px solid var(--accent-color)';
-                textContainer.style.paddingLeft = '20px';
-            }
-
-            // 2. 動畫、定格與發光邏輯
-            if (data.playAnimation) {
-                // 啟動發光效果
-                if (data.shouldGlow) {
-                    mv.exposure = 2; // 瞬間閃光
-                    setTimeout(() => { mv.exposure = 1; }, 200);
-                    setTimeout(() => { mv.exposure = 1.5; }, 400);
-                    setTimeout(() => { 
-                        mv.exposure = 1; 
-                        mv.classList.add('model-glow'); // 保持環境光暈
-                    }, 600);
-                }
-
-                mv.currentTime = 0;
-                mv.play(); 
-                animTimer = setTimeout(() => {
-                    mv.pause();
-                    mv.currentTime = 0.25; 
-                    
-                    if (data.showHotspot) {
-                        hotspot.style.display = 'block';
-                        hotspot.classList.add('fade-in');
-                    }
-                }, 240);
-            } else {
-                mv.pause();
-                mv.currentTime = 0; 
-            }
-
-            // 3. 文字與頁碼
-            textContainer.classList.remove('fade-in');
-            void textContainer.offsetWidth; 
-            textContainer.classList.add('fade-in');
-
-            mv.cameraOrbit = data.orbit;
-            titleEl.innerText = data.title;
-            contentEl.innerText = data.content;
-            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
-
-            // 4. 作者
-            authorEl.style.display = data.showAuthor ? 'block' : 'none';
-            if (data.showAuthor) authorEl.innerText = data.author || '';
+    // 當模型準備好時執行
+    if (mv.model) {
+        // 調用剛才寫的發光函式
+        if (data.targetNode) {
+            lightUpSpecificNode(data.targetNode);
+        } else {
+            // 如果這頁沒指定發光，就全部熄滅
+            mv.model.materials.forEach(m => m.setEmissiveStrength(0));
         }
+    }
 
+    // 更新相機與文字
+    mv.cameraOrbit = data.orbit;
+    document.querySelector('#slide-title').innerText = data.title;
+    document.querySelector('#slide-content').innerText = data.content;
+    
+    if (data.playAnimation) {
+        mv.currentTime = 0;
+        mv.play(); 
+        setTimeout(() => {
+            mv.pause();
+        }, 240);
+    } else {
+        mv.pause();
+        mv.currentTime = 0; 
+    }
+    // 3. 更新文字與圖片
+    textContainer.classList.remove('fade-in');
+    void textContainer.offsetWidth; 
+    textContainer.classList.add('fade-in');
+
+    mv.cameraOrbit = data.orbit;
+    titleEl.innerText = data.title;
+    contentEl.innerText = data.content;
+    pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
+
+    // 4. 處理圖片
+    if (data.image) {
+        imgEl.src = data.image;
+        imgEl.style.display = 'block';
+    } else {
+        imgEl.style.display = 'none';
+    }
+
+    // 5. 作者顯示
+    authorEl.style.display = data.showAuthor ? 'block' : 'none';
+    if (data.showAuthor) authorEl.innerText = data.author || '';
+}
+        
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
                 currentPage++;
@@ -270,7 +229,6 @@
                 updateSlide();
             }
         });
-
         updateSlide();
     </script>
 </body>
