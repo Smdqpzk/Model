@@ -144,8 +144,8 @@
             { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false },
             { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
             { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true },
-            { orbit: '90deg 0deg 70%', title: '動態效果展示', content: '播放模型內建動畫並旋轉展示', showAuthor: false, hideModel: false, playAnimation: true },
-            { orbit: '270deg 0deg 50%', title: 'ESP32 核心', content: '主控單元位置與配線', showAuthor: false, hideModel: false },
+            { orbit: '90deg 85deg 90%', title: 'Structure display', content: 'overall structure', showAuthor: false, hideModel: false, playAnimation: true },
+            { orbit: '270deg 0deg 50%', title: 'ESP32 (The core of the car)', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false },
             { orbit: '180deg 170deg 60%', title: '底盤結構', content: '驅動馬達與承重設計', showAuthor: false, hideModel: false },
             { orbit: '160deg 85deg 50%', title: '砲塔轉向', content: '伺服馬達控制細節', showAuthor: false, hideModel: false },
             { orbit: '90deg 85deg 90%', title: '電控配置', content: '降壓模組與繼電器佈線', showAuthor: false, hideModel: false },
@@ -179,10 +179,6 @@
                 setTimeout(() => {
                     mv.pause();
                 }, 240);
-                // 獲取目前角度並旋轉 360 度 (2*PI rad)
-                const currentOrbit = mv.getCameraOrbit();
-                const newTheta = currentOrbit.theta + (2 * Math.PI);
-                mv.cameraOrbit = `${newTheta}rad ${currentOrbit.phi}rad ${currentOrbit.radius}m`;
             } else {
                 mv.pause();
                 mv.currentTime = 0; 
