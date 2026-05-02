@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank V3 展示</title>
+    <title>展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -233,7 +233,9 @@ if (mv.model) {
     }
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
-                if (data.Animation == "OPEN") {
+                const isStaticPage = (currentIndex === 4);
+
+                if (data.Animation == "OPEN" && !isStaticPage) {
                     setTimeout(() => {
                         // 第一次角度變動
                         mv.cameraOrbit = "90deg 85deg 190%";
