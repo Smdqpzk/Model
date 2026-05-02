@@ -9,21 +9,15 @@
 
     <style>
         :root {
-            /* 重新定義更有層次感的配色 */
             --bg-dark: #0a0e14;
             --bg-panel: rgba(20, 26, 35, 0.8);
-            --text-main: #e2e8f0;
-            --accent-color: #00f2ff; /* 霓虹青色 */
-            --accent-glow: rgba(0, 242, 255, 0.5);
-            --secondary-color: #7000ff; /* 霓虹紫色 */
+            --text-main: #f8fafc;
+            --accent-color: #38bdf8;
         }
 
         body {
             font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
             background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(112, 0, 255, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
             color: var(--text-main);
             margin: 0;
             display: flex;
@@ -33,57 +27,27 @@
             overflow: hidden;
         }
 
-        /* 掃描線特效 */
-        body::before {
-            content: " ";
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 3px 100%;
-            z-index: 100;
-            pointer-events: none;
-            opacity: 0.3;
-        }
-
         .slide-deck {
             display: flex;
             width: 96vw;
             height: 88vh;
             background: var(--bg-panel);
-            backdrop-filter: blur(20px);
             border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 2px var(--accent-color);
             overflow: hidden;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 左側：模型展示區（增加網格） */
+        /* 左側：模型展示區 (移除所有網格與特效) */
         .model-section {
             flex: 1.4; 
-            background: radial-gradient(circle at center, #1a1f26 0%, #0a0e14 100%);
+            background: #000000; /* 純黑背景 */
             position: relative;
-            overflow: hidden;
-        }
-
-        .model-section::after {
-            content: "";
-            position: absolute;
-            width: 200%; height: 200%;
-            top: -50%; left: -50%;
-            background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            transform: perspective(500px) rotateX(60deg);
-            z-index: 0;
         }
 
         model-viewer {
             width: 100%;
             height: 100%;
-            z-index: 1;
             --poster-color: transparent;
         }
 
@@ -94,72 +58,53 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: rgba(10, 14, 20, 0.6);
-            border-left: 1px solid rgba(0, 242, 255, 0.2);
+            background: rgba(10, 14, 20, 0.9);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 10;
         }
 
         #slide-title { 
-            font-size: 3.2em; 
+            font-size: 3em; 
             margin: 0 0 15px 0; 
             color: #fff; 
-            text-shadow: 0 0 15px var(--accent-glow);
-            letter-spacing: -1px;
-            font-weight: 800;
         }
 
         #slide-content { 
-            font-size: 1.15em; 
+            font-size: 1.2em; 
             line-height: 1.8; 
             color: #cbd5e1; 
-            min-height: 120px;
-            white-space: pre-line; /* 支援換行符號 */
+            white-space: pre-line;
         }
 
         .label-box {
             border-left: 4px solid var(--accent-color);
             padding-left: 25px;
-            position: relative;
         }
 
         .author-info { 
             margin-top: 40px; 
             font-weight: bold; 
             color: var(--accent-color); 
-            font-family: monospace;
-            letter-spacing: 2px;
-            text-transform: uppercase;
         }
 
+        /* 頁碼調整：左下角、白色 */
         .page-footer { 
             position: absolute; 
             bottom: 30px; 
-            right: 40px; 
-            color: var(--accent-color); 
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-
-        /* 按鍵提示 */
-        .hint { 
-            position: absolute; 
-            bottom: 30px; 
             left: 40px; 
-            font-size: 0.8em; 
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #ffffff; 
+            font-family: monospace;
+            font-size: 1.1em;
+            z-index: 20;
         }
 
-        /* 文字切換動畫 */
         .fade-in {
-            animation: cyberFade 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: fadeIn 0.5s ease-out;
         }
 
-        @keyframes cyberFade {
-            from { opacity: 0; transform: translateX(20px); filter: blur(5px); }
-            to { opacity: 1; transform: translateX(0); filter: blur(0); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -170,9 +115,9 @@
             <model-viewer 
                 id="presenter"
                 src="Model.glb" 
-                shadow-intensity="2"
+                shadow-intensity="1"
                 environment-image="neutral"
-                exposure="1.5"
+                exposure="1.2"
                 camera-controls
                 touch-action="none"
                 camera-orbit="180deg 75deg 105%">
@@ -181,20 +126,18 @@
 
         <div class="info-section">
             <div id="text-container" class="label-box">
-                <h1 id="slide-title">SYSTEM BOOTING...</h1>
+                <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
-                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 12px; border: 1px solid var(--accent-color); box-shadow: 0 0 15px var(--accent-glow);">
                 <div id="author" class="author-info"></div>
             </div>
         </div>
 
-        <div class="hint">Use Arrow Keys [← / →] to Navigate</div>
+        <!-- 白色頁碼在左下角 -->
         <div id="page-num" class="page-footer"></div>
     </div>
 
     <script>
         const mv = document.querySelector('#presenter');
-        const imgEl = document.querySelector('#slide-img');
         const titleEl = document.querySelector('#slide-title');
         const contentEl = document.querySelector('#slide-content');
         const authorEl = document.querySelector('#author');
@@ -203,61 +146,36 @@
 
         let currentPage = 0;
 
-        // 更新 slideData 加入了更詳細的硬體內容
         const slideData = [
-            { orbit: '180deg 75deg 105%', title: 'PUMA TANK V3', content: '遠端遙控載具開發專案\n啟動於 2026 年 3 月', author: '項正宇', showAuthor: true, hideModel: false },
-            { orbit: '210deg 80deg 90%', title: '開發動機', content: '探索嵌入式系統與結構工程的極限\n挑戰 70kg 高負載紙製車體設計', showAuthor: false, hideModel: true },
-            { orbit: '180deg 95deg 70%', title: '硬體清單', content: '控制：ESP32 / L298N\n執行：SG-90 / TT Motor / Pump\n顯示：1.3" OLED Displayer\n能源：LM2596S 穩壓模組', showAuthor: false, hideModel: false },
-            { orbit: '90deg 75deg 100%', title: '射擊系統', content: '結合電磁閥與幫浦的自動化供水機構', showAuthor: false, hideModel: false, playAnimation: true },
-            { orbit: '180deg 75deg 105%', title: 'END OF SESSION', content: '感謝您的觀看', author: 'PROJECT COMPLETE', showAuthor: true, hideModel: false }
+            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Puma Tank V3 專案展示', author: '項正宇', showAuthor: true, hideModel: false },
+            { orbit: '210deg 80deg 90%', title: '開發動機', content: '結合嵌入式系統與結構設計\n挑戰 70kg 負載實驗', showAuthor: false, hideModel: true },
+            { orbit: '0deg 75deg 80%', title: 'ESP32 控制核心', content: '處理 NRF24L01 無線訊號\n執行馬達與電磁閥邏輯控制', showAuthor: false, hideModel: false, targetNode: 'ESP32' },
+            { orbit: '90deg 85deg 85%', title: 'L298N 驅動模組', content: '負責驅動高電流 TT 馬達\n支援坦克轉向與動力輸出', showAuthor: false, hideModel: false, targetNode: 'L298N' },
+            { orbit: '150deg 70deg 90%', title: '狀態顯示系統', content: '1.3 吋 OLED 螢幕\n即時顯示電壓與連線狀態', showAuthor: false, hideModel: false, targetNode: 'Displayer' },
+            { orbit: '270deg 80deg 100%', title: '射擊機構', content: '由 Pump 與電磁閥組成的水炮系統', showAuthor: false, hideModel: false, playAnimation: true },
+            { orbit: '180deg 75deg 105%', title: 'Q&A', content: '感謝您的聆聽', author: 'THE END', showAuthor: true, hideModel: false }
         ];
 
         function updateSlide() {
             const data = slideData[currentPage];
             const modelSection = document.querySelector('.model-section');
-            const infoSection = document.querySelector('.info-section');
 
-            // 1. 模型隱藏處理
-            if (data.hideModel) {
-                modelSection.style.visibility = 'hidden';
-                modelSection.style.flex = '0';
-                infoSection.style.textAlign = 'center';
-            } else {
-                modelSection.style.visibility = 'visible';
-                modelSection.style.flex = '1.4';
-                infoSection.style.textAlign = 'left';
-            }
+            // 模型顯示處理
+            modelSection.style.display = data.hideModel ? 'none' : 'block';
 
-            // 2. 動畫控制
-            if (data.playAnimation) {
-                mv.currentTime = 0;
-                mv.play(); 
-                setTimeout(() => { mv.pause(); }, 240);
-            } else {
-                mv.pause();
-                mv.currentTime = 0; 
-            }
-
-            // 3. 文字切換效果
+            // 文字動畫
             textContainer.classList.remove('fade-in');
             void textContainer.offsetWidth; 
             textContainer.classList.add('fade-in');
 
-            // 4. 更新資訊
+            // 更新內容
             mv.cameraOrbit = data.orbit;
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
-            pageEl.innerText = `SYS_LOG: PAGE_${(currentPage + 1).toString().padStart(2, '0')}`;
-
-            if (data.image) {
-                imgEl.src = data.image;
-                imgEl.style.display = 'block';
-            } else {
-                imgEl.style.display = 'none';
-            }
+            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
 
             authorEl.style.display = data.showAuthor ? 'block' : 'none';
-            if (data.showAuthor) authorEl.innerText = `OPERATOR: ${data.author || 'UNKNOWN'}`;
+            if (data.showAuthor) authorEl.innerText = data.author || '';
         }
         
         window.addEventListener('keydown', (e) => {
@@ -270,7 +188,6 @@
             }
         });
 
-        // 初始化
         updateSlide();
     </script>
 </body>
