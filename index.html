@@ -182,10 +182,12 @@
             if (data.playAnimation) {
                 setTimeout(() => {
                 mv.cameraOrbit = "90deg 85deg 190%";
-                mv.play();
+                setTimeout(() => {
+                    mv.play();
                 setTimeout(() => {
                     mv.pause();
                 }, 240);
+                }, 250);
                 }, 2000);
             } else {
                 mv.pause();
