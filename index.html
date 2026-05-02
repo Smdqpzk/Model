@@ -93,7 +93,7 @@
         #slide-title { font-size: 2.5em; margin: 0 0 10px 0; color: var(--text-main); }
         #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; min-height: 100px; }
         .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
-        .page-footer { position: absolute; bottom: 20px; right: 40px; color: #424242; font-family: monospace; }
+        .page-footer { position: absolute; bottom: 20px; right: 40px; color: #bdc1c6; font-family: monospace; }
         
         .hint { position: absolute; bottom: 15px; left: 15px; font-size: 0.7em; color: #ddd; }
     </style>
@@ -127,55 +127,33 @@
 
     <script>
         const mv = document.querySelector('#presenter');
-const imgEl = document.querySelector('#slide-img');
-const titleEl = document.querySelector('#slide-title');
-const contentEl = document.querySelector('#slide-content');
-const authorEl = document.querySelector('#author');
-const pageEl = document.querySelector('#page-num');
-const textContainer = document.querySelector('#text-container');
+        const imgEl = document.querySelector('#slide-img');
+        const titleEl = document.querySelector('#slide-title');
+        const contentEl = document.querySelector('#slide-content');
+        const authorEl = document.querySelector('#author');
+        const pageEl = document.querySelector('#page-num');
+        const textContainer = document.querySelector('#text-container');
 
-let currentPage = 0;
+        let currentPage = 0;
 
-const slideData = [
-    { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false },
-    { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
-    { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Battery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false, hideModel: true },
-    { orbit: '90deg 75deg 100%', title: '控制核心', content: '使用 ESP32 作為主要控制器，負責處理訊號與驅動。', showAuthor: false, hideModel: false, playAnimation: true, targetNode: 'ESP32' },
-    { orbit: '210deg 80deg 90%', title: '顯示模組', content: '1.3 吋顯示器，用於顯示坦克當前狀態。', showAuthor: false, hideModel: false, targetNode: 'Displayer' },
-    { orbit: '180deg 170deg 60%', title: '馬達驅動', content: 'L298N 模組負責提供馬達所需的電流。', showAuthor: false, hideModel: false, targetNode: 'L298N' },
-    { orbit: '45deg 45deg 80%', title: '標題', content: '內容描述', showAuthor: false, hideModel: false },
-    { orbit: '160deg 85deg 50%', title: '標題', content: '內容描述', showAuthor: false, hideModel: false },
-    { orbit: '180deg 75deg 105%', title: '專案總結', content: '感謝觀看', showAuthor: true, hideModel: false },
-    { orbit: '180deg 75deg 105%', title: '簡報結束', content: '問答時間', author: '項正宇', showAuthor: true, hideModel: false }
-];
-
-// --- 1. 新增：定義發光函式 ---
-function lightUpSpecificNode(targetName) {
-    if (mv && mv.model) {
-        // 先重置所有材質
-        mv.model.materials.forEach(m => {
-            if (m.setEmissiveStrength) m.setEmissiveStrength(0);
-        });
-
-        // 尋找目標節點
-        const node = mv.model.nodes.find(n => n.name === targetName);
-        if (node && node.mesh) {
-            node.mesh.primitives.forEach(prim => {
-                const mat = prim.material;
-                mat.emissiveFactor.setRGB(0, 1, 0); // 綠光
-                if (mat.setEmissiveStrength) mat.setEmissiveStrength(10);
-            });
-        }
-    }
-}
-
-// --- 2. 更新：修改後的 updateSlide ---
-function updateSlide() {
+        const slideData = [
+            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true,hideModel: false },
+            { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because Im so boring', showAuthor: false,hideModel: true },
+            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Battery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false,hideModel: true },
+            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false,hideModel: false,playAnimation: true },
+            { orbit: '210deg 80deg 90%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '160deg 85deg 50%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '標題', content: '字條', showAuthor: true,hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: 'OTHER', showAuthor: true,hideModel: false }
+        ];
+        function updateSlide() {
     const data = slideData[currentPage];
     const modelSection = document.querySelector('.model-section');
     const infoSection = document.querySelector('.info-section');
 
-    // 處理模型顯示與排版
+    // 1. 處理模型隱藏/顯示
     if (data.hideModel) {
         modelSection.style.display = 'none';
         infoSection.style.flex = '1'; 
@@ -192,35 +170,17 @@ function updateSlide() {
         textContainer.style.paddingLeft = '20px';
     }
 
-    // 處理發光邏輯 (確保 model 存在)
-    if (mv.model) {
-        if (data.targetNode) {
-            lightUpSpecificNode(data.targetNode);
-        } else {
-            mv.model.materials.forEach(m => {
-                if (m.setEmissiveStrength) m.setEmissiveStrength(0);
-            });
-        }
-    }
-
-    // 處理動畫控制 (增加型別檢查預防報錯)
-    if (mv && typeof mv.pause === 'function') {
-        if (data.playAnimation) {
-            mv.currentTime = 0;
-            mv.play(); 
-            setTimeout(() => {
-                if (typeof mv.pause === 'function') {
-                    mv.pause();
-                    mv.currentTime = 0.25; 
-                }
-            }, 240);
-        } else {
+    if (data.playAnimation) {
+        mv.currentTime = 0;
+        mv.play(); 
+        setTimeout(() => {
             mv.pause();
-            mv.currentTime = 0; 
-        }
+        }, 240);
+    } else {
+        mv.pause();
+        mv.currentTime = 0; 
     }
-
-    // 更新文字內容與動畫
+    // 3. 更新文字與圖片
     textContainer.classList.remove('fade-in');
     void textContainer.offsetWidth; 
     textContainer.classList.add('fade-in');
@@ -230,7 +190,7 @@ function updateSlide() {
     contentEl.innerText = data.content;
     pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
 
-    // 處理圖片顯示
+    // 4. 處理圖片
     if (data.image) {
         imgEl.src = data.image;
         imgEl.style.display = 'block';
@@ -238,27 +198,21 @@ function updateSlide() {
         imgEl.style.display = 'none';
     }
 
-    // 處理作者顯示
+    // 5. 作者顯示
     authorEl.style.display = data.showAuthor ? 'block' : 'none';
-    if (data.showAuthor) authorEl.innerText = data.author || '項正宇';
+    if (data.showAuthor) authorEl.innerText = data.author || '';
 }
-
-// 鍵盤監聽
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
-        currentPage++;
+        
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
+                currentPage++;
+                updateSlide();
+            } else if (e.key === 'ArrowLeft' && currentPage > 0) {
+                currentPage--;
+                updateSlide();
+            }
+        });
         updateSlide();
-    } else if (e.key === 'ArrowLeft' && currentPage > 0) {
-        currentPage--;
-        updateSlide();
-    }
-});
-
-// 確保模型載入後才執行第一次更新，避免抓不到 model
-mv.addEventListener('load', updateSlide);
-
-// 備用初始呼叫
-updateSlide();
     </script>
 </body>
 </html>
