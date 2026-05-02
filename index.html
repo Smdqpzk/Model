@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank V3 展示</title>
+    <title>展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -196,39 +196,41 @@
                 textContainer.style.paddingLeft = '20px';
             }
             
-            mv.addEventListener('load', () => {
-    console.log("模型已載入，準備執行塗色邏輯...");
-    
-    // 如果你有資料觸發變色，放在這裡執行一次初始設定
-    if (data.TragetPart) {
-        highlightMultipleParts(data.TragetPart);
-    }
-});
 
-            function highlightMultipleParts(targetList) {
-    const mv = document.querySelector('#presenter');
-    if (!mv || !mv.model) return;
+            // 1. 定義核心塗色邏輯
+function applyHighlightLogic(mv, targetList) {
+    if (!mv.model || !mv.model.materials) return;
+
+    // 安全檢查：確保 targetList 是陣列
+    const targets = Array.isArray(targetList) ? targetList : [targetList];
 
     mv.model.materials.forEach((mat) => {
         const pbr = mat.pbrMetallicRoughness;
         const matName = mat.name || "";
         const texName = pbr.baseColorTexture?.texture?.name || "";
 
-        // 檢查這個材質是否屬於目標清單中的任何一個
-        const isTarget = targetList.some(name => matName.includes(name) || texName.includes(name));
+        // 檢查是否為目標
+        const isTarget = targets.some(name => 
+            name && (matName.includes(name) || texName.includes(name))
+        );
 
         if (isTarget) {
-            // --- 目標零件：恢復 Blockbench 預設顏色 ---
-            pbr.setBaseColorFactor([1, 1, 1, 1]); 
-            if (pbr.setMetallicFactor) pbr.setMetallicFactor(0.3);
+            // 目標：恢復預設原色 (白色濾鏡 = 原色)
+            pbr.setBaseColorFactor([1, 1, 1, 1]);
         } else {
-            // --- 非目標零件：統一變暗 ---
+            // 非目標：變暗
             pbr.setBaseColorFactor([0.15, 0.15, 0.15, 1.0]);
-            if (pbr.setMetallicFactor) pbr.setMetallicFactor(0);
         }
     });
 }
-updateHighlight(data.TragetPart); 
+
+if (mv.model) {
+        applyHighlightLogic(mv, data.TragetParts || []);
+    } else {
+        mv.addEventListener('load', () => {
+            applyHighlightLogic(mv, data.TragetParts || []);
+        }, { once: true });
+    }
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
                 if (data.Animation == "OPEN") {
