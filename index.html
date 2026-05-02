@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank 展示</title>
+    <title>Puma Tank V3 展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #ffffff;
-            --text-main: #202124;
+            --bg-color: #000000; /* 改為全黑背景 */
+            --text-main: #ffffff; /* 文字改為白色 */
+            --text-sub: #bdc1c6;
             --accent-color: #1a73e8;
         }
 
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f8f9fa;
+            background-color: #0a0a0a;
             color: var(--text-main);
             margin: 0;
             display: flex;
@@ -32,20 +33,22 @@
             height: 85vh;
             background: var(--bg-color);
             border-radius: 12px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             overflow: hidden;
             position: relative;
+            border: 1px solid #222;
         }
 
         /* 左側：模型展示區 */
         .model-section {
             flex: 1.2; 
-            background: #ffffff;
+            background: #000000;
         }
 
         model-viewer {
             width: 100%;
             height: 100%;
+            --interpolation-decay: 100;
         }
 
         /* 右側：文字說明區 */
@@ -55,24 +58,19 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: #ffffff;
-            border-left: 1px solid #f1f3f4;
+            background: #000000;
+            border-left: 1px solid #222;
             z-index: 10;
         }
 
-        /* 頁碼：左下角、白色、Monospace */
-        .page-footer { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 40px; 
-            color: #ffffff; 
-            font-family: monospace; 
-            z-index: 20;
-            pointer-events: none;
-            font-size: 1.2em;
-            background: rgba(0, 0, 0, 0.3); /* 稍微深色背景確保白色字體在白色模型區可見 */
-            padding: 5px 10px;
-            border-radius: 5px;
+        /* 文字切入動畫 (Slide In from Right) */
+        .fade-in {
+            animation: slideIn 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .label-box {
@@ -80,18 +78,27 @@
             padding-left: 20px;
         }
 
-        #slide-title { font-size: 2.5em; margin: 0 0 10px 0; color: var(--text-main); }
-        #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; min-height: 100px; white-space: pre-line; }
+        #slide-title { font-size: 2.8em; margin: 0 0 10px 0; color: var(--text-main); }
+        #slide-content { font-size: 1.2em; line-height: 1.6; color: var(--text-sub); min-height: 100px; white-space: pre-line; }
         .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        /* 左下角白色頁碼 */
+        .page-footer { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 40px;
+            color: #ffffff; 
+            font-family: monospace; 
+            z-index: 20;
+            pointer-events: none;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        
+        .hint { position: absolute; bottom: 15px; right: 15px; font-size: 0.7em; color: #444; }
     </style>
 </head>
 <body>
@@ -113,15 +120,18 @@
             <div id="text-container" class="label-box">
                 <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
+                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 8px; border: 1px solid #333;">
                 <div id="author" class="author-info"></div>
             </div>
         </div>
 
         <div id="page-num" class="page-footer"></div>
+        <div class="hint">Use Arrow Keys to Navigate</div>
     </div>
 
     <script>
         const mv = document.querySelector('#presenter');
+        const imgEl = document.querySelector('#slide-img');
         const titleEl = document.querySelector('#slide-title');
         const contentEl = document.querySelector('#slide-content');
         const authorEl = document.querySelector('#author');
@@ -131,32 +141,73 @@
         let currentPage = 0;
 
         const slideData = [
-            { orbit: '180deg 75deg 105%', title: 'Puma Tank V3', content: '硬體結構與電子電路綜合展示', author: '項正宇', showAuthor: true },
-            { orbit: '0deg 75deg 80%', title: 'ESP32 主控制器', content: '控制核心，負責 WiFi 通訊與邏輯運算' },
-            { orbit: '45deg 80deg 85%', title: 'NRF24L01 天線', content: '2.4GHz 無線通訊，確保遙控穩定性' },
-            { orbit: '90deg 85deg 80%', title: 'L298N 驅動模組', content: '馬達電力分配與方向控制中心' },
-            { orbit: '135deg 70deg 90%', title: '繼電器模組', content: '用於大電流零件的開關控制' },
-            { orbit: '180deg 80deg 95%', title: 'TT 馬達', content: '底盤動力來源，驅動坦克履帶移動' },
-            { orbit: '225deg 75deg 85%', title: 'SG90 伺服馬達', content: '用於砲塔轉向或其他角度控制' },
-            { orbit: '225deg 60deg 70%', title: '坦克砲塔', content: '整合 Pump 與噴射機構的發射單元' },
-            { orbit: '270deg 85deg 90%', title: '電池組', content: '提供 7.4V - 12V 的動力電源' },
-            { orbit: '315deg 80deg 85%', title: 'LM2596S 降壓模組', content: '將高電壓轉為 5V 供給控制板' },
-            { orbit: '360deg 75deg 80%', title: '1.3吋 OLED 螢幕', content: '顯示系統資訊、電壓與連線狀態' },
-            { orbit: '180deg 75deg 105%', title: '展示結束', content: '感謝您的觀看', author: 'Project Complete', showAuthor: true }
+            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false },
+            { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
+            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true },
+            { orbit: '90deg 75deg 100%', title: '動態效果展示', content: '播放模型內建動畫並旋轉展示', showAuthor: false, hideModel: false, playAnimation: true },
+            { orbit: '0deg 75deg 105%', title: 'ESP32 核心', content: '主控單元位置與配線', showAuthor: false, hideModel: false },
+            { orbit: '180deg 170deg 60%', title: '底盤結構', content: '驅動馬達與承重設計', showAuthor: false, hideModel: false },
+            { orbit: '45deg 45deg 80%', title: '砲塔轉向', content: '伺服馬達控制細節', showAuthor: false, hideModel: false },
+            { orbit: '160deg 85deg 50%', title: '電控配置', content: '降壓模組與繼電器佈線', showAuthor: false, hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '最後確認', content: '專案各項指標已完成', showAuthor: true, hideModel: false },
+            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '感謝您的聆聽', author: 'Project: Puma Tank V3', showAuthor: true, hideModel: false }
         ];
 
         function updateSlide() {
             const data = slideData[currentPage];
+            const modelSection = document.querySelector('.model-section');
+            const infoSection = document.querySelector('.info-section');
 
+            // 1. 處理模型隱藏/顯示
+            if (data.hideModel) {
+                modelSection.style.display = 'none';
+                infoSection.style.textAlign = 'center';
+                infoSection.style.borderLeft = 'none';
+                textContainer.style.borderLeft = 'none';
+                textContainer.style.paddingLeft = '0';
+            } else {
+                modelSection.style.display = 'block';
+                infoSection.style.textAlign = 'left';
+                infoSection.style.borderLeft = '1px solid #222';
+                textContainer.style.borderLeft = '5px solid var(--accent-color)';
+                textContainer.style.paddingLeft = '20px';
+            }
+
+            // 2. 動畫與旋轉邏輯
+            if (data.playAnimation) {
+                mv.play();
+                // 獲取目前角度並旋轉 360 度 (2*PI rad)
+                const currentOrbit = mv.getCameraOrbit();
+                const newTheta = currentOrbit.theta + (2 * Math.PI);
+                mv.cameraOrbit = `${newTheta}rad ${currentOrbit.phi}rad ${currentOrbit.radius}m`;
+                
+                setTimeout(() => {
+                    mv.pause();
+                }, 250);
+            } else {
+                mv.pause();
+                mv.currentTime = 0; 
+                mv.cameraOrbit = data.orbit;
+            }
+
+            // 3. 更新文字（帶有切入動畫）
             textContainer.classList.remove('fade-in');
             void textContainer.offsetWidth; 
             textContainer.classList.add('fade-in');
 
-            mv.cameraOrbit = data.orbit;
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
             pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
 
+            // 4. 處理圖片
+            if (data.image) {
+                imgEl.src = data.image;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            // 5. 作者顯示
             authorEl.style.display = data.showAuthor ? 'block' : 'none';
             if (data.showAuthor) authorEl.innerText = data.author || '';
         }
