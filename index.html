@@ -180,24 +180,37 @@
 
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
-    // 先切換該頁面的基本角度
-    mv.cameraOrbit = data.orbit;
-
-    // 統一設定動畫名稱
-    mv.animationName = data.Animation;
-
     if (data.Animation == "OPEN") {
         setTimeout(() => {
-            mv.cameraOrbit = "90deg 85deg 190%"; // OPEN 特有的特寫角度
+            // 第一次角度變動
+            mv.cameraOrbit = "90deg 85deg 190%";
+            
             setTimeout(() => {
+                mv.animationName = "OPEN"; // 修正拼字：animationName
                 mv.play();
-                setTimeout(() => mv.pause(), 230);
-            }, 100);
+                
+                setTimeout(() => {
+                    mv.pause();
+                }, 230); // 播放 230 毫秒後停止
+            }, 100); 
         }, 1000);
-    } else {
-        // 其他動畫（如 R&L）直接播放
+    } 
+    else if (data.Animation == "R&L") {
+        // 第二種動畫的邏輯
+        mv.animationName = "R&L"; // 記得這裡要改成 "R&L"
         mv.play();
+        
+        // 如果 R&L 也需要自動停止，記得加 setTimeout
+        /*
+        setTimeout(() => {
+            mv.pause();
+        }, 500); 
+        */
     }
+} else {
+    mv.pause();
+    mv.currentTime = 0; 
+    mv.cameraOrbit = data.orbit;
 }
 
             // 3. 更新文字（帶有切入動畫）
