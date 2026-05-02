@@ -3,34 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>測試A</title>
+    <title>Puma Tank V3 展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
-        .page-footer { 
-        position: absolute; 
-        bottom: 20px; 
-        left: 40px;
-        color: #585858; 
-        font-family: monospace; 
-        z-index: 20;
-        pointer-events: none;
-        font-size: 1.2em;
-        background: rgba(255, 255, 255, 0.5);
-        padding: 5px 10px;
-        border-radius: 5px;
-        }
-
         :root {
-            --bg-color: #ffffff;
-            --text-main: #202124;
-            --accent-color: #1a73e8;
+            /* 重新定義更有層次感的配色 */
+            --bg-dark: #0a0e14;
+            --bg-panel: rgba(20, 26, 35, 0.8);
+            --text-main: #e2e8f0;
+            --accent-color: #00f2ff; /* 霓虹青色 */
+            --accent-glow: rgba(0, 242, 255, 0.5);
+            --secondary-color: #7000ff; /* 霓虹紫色 */
         }
 
         body {
-            font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f8f9fa;
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(112, 0, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
             color: var(--text-main);
             margin: 0;
             display: flex;
@@ -40,62 +33,134 @@
             overflow: hidden;
         }
 
-        .slide-deck {
-            display: flex;
-            width: 95vw;
-            height: 85vh;
-            background: var(--bg-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
-            position: relative;
+        /* 掃描線特效 */
+        body::before {
+            content: " ";
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0.3;
         }
 
-        /* 左側：模型展示區 */
+        .slide-deck {
+            display: flex;
+            width: 96vw;
+            height: 88vh;
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 2px var(--accent-color);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 左側：模型展示區（增加網格） */
         .model-section {
-            flex: 1.2; 
-            background: #ffffff;
+            flex: 1.4; 
+            background: radial-gradient(circle at center, #1a1f26 0%, #0a0e14 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-section::after {
+            content: "";
+            position: absolute;
+            width: 200%; height: 200%;
+            top: -50%; left: -50%;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg);
+            z-index: 0;
         }
 
         model-viewer {
             width: 100%;
             height: 100%;
-            --interpolation-decay: 100;
+            z-index: 1;
+            --poster-color: transparent;
         }
 
         /* 右側：文字說明區 */
         .info-section {
             flex: 1;
-            padding: 50px;
+            padding: 60px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: #ffffff;
-            border-left: 1px solid #f1f3f4;
+            background: rgba(10, 14, 20, 0.6);
+            border-left: 1px solid rgba(0, 242, 255, 0.2);
             z-index: 10;
+        }
+
+        #slide-title { 
+            font-size: 3.2em; 
+            margin: 0 0 15px 0; 
+            color: #fff; 
+            text-shadow: 0 0 15px var(--accent-glow);
+            letter-spacing: -1px;
+            font-weight: 800;
+        }
+
+        #slide-content { 
+            font-size: 1.15em; 
+            line-height: 1.8; 
+            color: #cbd5e1; 
+            min-height: 120px;
+            white-space: pre-line; /* 支援換行符號 */
+        }
+
+        .label-box {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .author-info { 
+            margin-top: 40px; 
+            font-weight: bold; 
+            color: var(--accent-color); 
+            font-family: monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .page-footer { 
+            position: absolute; 
+            bottom: 30px; 
+            right: 40px; 
+            color: var(--accent-color); 
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        /* 按鍵提示 */
+        .hint { 
+            position: absolute; 
+            bottom: 30px; 
+            left: 40px; 
+            font-size: 0.8em; 
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         /* 文字切換動畫 */
         .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+            animation: cyberFade 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes cyberFade {
+            from { opacity: 0; transform: translateX(20px); filter: blur(5px); }
+            to { opacity: 1; transform: translateX(0); filter: blur(0); }
         }
-
-        .label-box {
-            border-left: 5px solid var(--accent-color);
-            padding-left: 20px;
-        }
-
-        #slide-title { font-size: 2.5em; margin: 0 0 10px 0; color: var(--text-main); }
-        #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; min-height: 100px; }
-        .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
-        .page-footer { position: absolute; bottom: 20px; right: 40px; color: #bdc1c6; font-family: monospace; }
-        
-        .hint { position: absolute; bottom: 15px; left: 15px; font-size: 0.7em; color: #ddd; }
     </style>
 </head>
 <body>
@@ -105,8 +170,9 @@
             <model-viewer 
                 id="presenter"
                 src="Model.glb" 
-                shadow-intensity="1"
+                shadow-intensity="2"
                 environment-image="neutral"
+                exposure="1.5"
                 camera-controls
                 touch-action="none"
                 camera-orbit="180deg 75deg 105%">
@@ -115,13 +181,14 @@
 
         <div class="info-section">
             <div id="text-container" class="label-box">
-                <h1 id="slide-title">載入中...</h1>
+                <h1 id="slide-title">SYSTEM BOOTING...</h1>
                 <p id="slide-content"></p>
-                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 12px; border: 1px solid var(--accent-color); box-shadow: 0 0 15px var(--accent-glow);">
                 <div id="author" class="author-info"></div>
             </div>
         </div>
 
+        <div class="hint">Use Arrow Keys [← / →] to Navigate</div>
         <div id="page-num" class="page-footer"></div>
     </div>
 
@@ -136,72 +203,62 @@
 
         let currentPage = 0;
 
+        // 更新 slideData 加入了更詳細的硬體內容
         const slideData = [
-            { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true,hideModel: false },
-            { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because Im so boring', showAuthor: false,hideModel: true },
-            { orbit: '180deg 95deg 70%', title: 'About the car(Tank)', content: 'This is made of these materials:\n\n*Woodstick\n*Glue\n*ESP32,L298N,SG-90,Battery box,LM2596S,1.3inch Displayer,TT motor,Pump,Normally Closed Solenoid Valve\n*Plastic water pipes\n*Foam Board\n*Gear\n*Metal rod', showAuthor: false,hideModel: true },
-            { orbit: '90deg 75deg 100%', title: '標題', content: '字條', showAuthor: false,hideModel: false,playAnimation: true },
-            { orbit: '210deg 80deg 90%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
-            { orbit: '180deg 170deg 60%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
-            { orbit: '45deg 45deg 80%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
-            { orbit: '180deg 95deg 70%', title: '標題', content: '字條', showAuthor: false,hideModel: false },
-            { orbit: '180deg 75deg 105%', title: '標題', content: '字條', showAuthor: true,hideModel: false },
-            { orbit: '180deg 75deg 105%', title: '簡報結束', content: '字條', author: 'OTHER', showAuthor: true,hideModel: false }
+            { orbit: '180deg 75deg 105%', title: 'PUMA TANK V3', content: '遠端遙控載具開發專案\n啟動於 2026 年 3 月', author: '項正宇', showAuthor: true, hideModel: false },
+            { orbit: '210deg 80deg 90%', title: '開發動機', content: '探索嵌入式系統與結構工程的極限\n挑戰 70kg 高負載紙製車體設計', showAuthor: false, hideModel: true },
+            { orbit: '180deg 95deg 70%', title: '硬體清單', content: '控制：ESP32 / L298N\n執行：SG-90 / TT Motor / Pump\n顯示：1.3" OLED Displayer\n能源：LM2596S 穩壓模組', showAuthor: false, hideModel: false },
+            { orbit: '90deg 75deg 100%', title: '射擊系統', content: '結合電磁閥與幫浦的自動化供水機構', showAuthor: false, hideModel: false, playAnimation: true },
+            { orbit: '180deg 75deg 105%', title: 'END OF SESSION', content: '感謝您的觀看', author: 'PROJECT COMPLETE', showAuthor: true, hideModel: false }
         ];
+
         function updateSlide() {
-    const data = slideData[currentPage];
-    const modelSection = document.querySelector('.model-section');
-    const infoSection = document.querySelector('.info-section');
+            const data = slideData[currentPage];
+            const modelSection = document.querySelector('.model-section');
+            const infoSection = document.querySelector('.info-section');
 
-    // 1. 處理模型隱藏/顯示
-    if (data.hideModel) {
-        modelSection.style.display = 'none';
-        infoSection.style.flex = '1'; 
-        infoSection.style.textAlign = 'center';
-        infoSection.style.borderLeft = 'none';
-        textContainer.style.borderLeft = 'none';
-        textContainer.style.paddingLeft = '0';
-    } else {
-        modelSection.style.display = 'block';
-        infoSection.style.flex = '1';
-        infoSection.style.textAlign = 'left';
-        infoSection.style.borderLeft = '1px solid #f1f3f4';
-        textContainer.style.borderLeft = '5px solid var(--accent-color)';
-        textContainer.style.paddingLeft = '20px';
-    }
+            // 1. 模型隱藏處理
+            if (data.hideModel) {
+                modelSection.style.visibility = 'hidden';
+                modelSection.style.flex = '0';
+                infoSection.style.textAlign = 'center';
+            } else {
+                modelSection.style.visibility = 'visible';
+                modelSection.style.flex = '1.4';
+                infoSection.style.textAlign = 'left';
+            }
 
-    if (data.playAnimation) {
-        mv.currentTime = 0;
-        mv.play(); 
-        setTimeout(() => {
-            mv.pause();
-        }, 240);
-    } else {
-        mv.pause();
-        mv.currentTime = 0; 
-    }
-    // 3. 更新文字與圖片
-    textContainer.classList.remove('fade-in');
-    void textContainer.offsetWidth; 
-    textContainer.classList.add('fade-in');
+            // 2. 動畫控制
+            if (data.playAnimation) {
+                mv.currentTime = 0;
+                mv.play(); 
+                setTimeout(() => { mv.pause(); }, 240);
+            } else {
+                mv.pause();
+                mv.currentTime = 0; 
+            }
 
-    mv.cameraOrbit = data.orbit;
-    titleEl.innerText = data.title;
-    contentEl.innerText = data.content;
-    pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
+            // 3. 文字切換效果
+            textContainer.classList.remove('fade-in');
+            void textContainer.offsetWidth; 
+            textContainer.classList.add('fade-in');
 
-    // 4. 處理圖片
-    if (data.image) {
-        imgEl.src = data.image;
-        imgEl.style.display = 'block';
-    } else {
-        imgEl.style.display = 'none';
-    }
+            // 4. 更新資訊
+            mv.cameraOrbit = data.orbit;
+            titleEl.innerText = data.title;
+            contentEl.innerText = data.content;
+            pageEl.innerText = `SYS_LOG: PAGE_${(currentPage + 1).toString().padStart(2, '0')}`;
 
-    // 5. 作者顯示
-    authorEl.style.display = data.showAuthor ? 'block' : 'none';
-    if (data.showAuthor) authorEl.innerText = data.author || '';
-}
+            if (data.image) {
+                imgEl.src = data.image;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            authorEl.style.display = data.showAuthor ? 'block' : 'none';
+            if (data.showAuthor) authorEl.innerText = `OPERATOR: ${data.author || 'UNKNOWN'}`;
+        }
         
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
@@ -212,6 +269,8 @@
                 updateSlide();
             }
         });
+
+        // 初始化
         updateSlide();
     </script>
 </body>
