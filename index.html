@@ -179,30 +179,29 @@
             }
 
             // 2. 動畫與旋轉邏輯
-           if (data.playAnimation) {
-    // 1. 先獲取當前的角度，並加上 360 度 (轉一圈)
-    const currentOrbit = mv.getCameraOrbit();
-    // theta 是水平角度，加上 2*PI (即 360度)
-    const newTheta = currentOrbit.theta + (2 * Math.PI); 
-    
-    // 2. 執行旋轉 (這會觸發平滑過渡)
-    mv.cameraOrbit = `${newTheta}rad ${currentOrbit.phi}rad ${currentOrbit.radius}m`;
+          if (data.playAnimation) {
+    // 1. 播放內建動畫
+    mv.play();
 
-    // 3. 等旋轉載入一段時間後（例如 1.5 秒），再播放模型內建動畫
+    // 2. 獲取當前攝像頭狀態
+    const orbit = mv.getCameraOrbit();
+    
+    // 3. 強制計算新的角度 (弧度制：2 * Math.PI 等於 360度)
+    // 我們稍微偏移一點點，確保它偵測到數值變化
+    const targetTheta = orbit.theta + (Math.PI * 2); 
+    
+    // 4. 直接賦值給屬性
+    mv.cameraOrbit = `${targetTheta}rad ${orbit.phi}rad ${orbit.radius}m`;
+
+    // 5. 設定動畫播放多久後停止 (例如 240 毫秒)
     setTimeout(() => {
-        mv.play();
-        
-        // 4. 動畫播放 240 毫秒後停止
-        setTimeout(() => {
-            mv.pause();
-        }, 240);
-        
-    }, 1500); // 這個時間要稍微大於旋轉所需的時間
+        mv.pause();
+    }, 240);
 
 } else {
-    // 回歸一般狀態
     mv.pause();
     mv.currentTime = 0; 
+    // 回到資料定義的初始角度
     mv.cameraOrbit = data.orbit;
 }
             // 3. 更新文字（帶有切入動畫）
