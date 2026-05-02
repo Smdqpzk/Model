@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank V3 全模組展示</title>
+    <title>Puma Tank 展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
-            --bg-dark: #0a0e14;
-            --bg-panel: rgba(20, 26, 35, 0.9);
-            --text-main: #f8fafc;
-            --accent-color: #38bdf8;
+            --bg-color: #ffffff;
+            --text-main: #202124;
+            --accent-color: #1a73e8;
         }
 
         body {
-            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
-            background-color: var(--bg-dark);
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: #f8f9fa;
             color: var(--text-main);
             margin: 0;
             display: flex;
@@ -29,84 +28,68 @@
 
         .slide-deck {
             display: flex;
-            width: 96vw;
-            height: 88vh;
-            background: var(--bg-panel);
-            border-radius: 20px;
+            width: 95vw;
+            height: 85vh;
+            background: var(--bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
             overflow: hidden;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 左側：模型展示區 (純淨模式) */
+        /* 左側：模型展示區 */
         .model-section {
-            flex: 1.4; 
-            background: #000000;
+            flex: 1.2; 
+            background: #ffffff;
         }
 
         model-viewer {
             width: 100%;
             height: 100%;
-            --poster-color: transparent;
         }
 
         /* 右側：文字說明區 */
         .info-section {
             flex: 1;
-            padding: 60px;
+            padding: 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: rgba(10, 14, 20, 0.95);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            background: #ffffff;
+            border-left: 1px solid #f1f3f4;
             z-index: 10;
         }
 
-        #slide-title { 
-            font-size: 2.8em; 
-            margin: 0 0 15px 0; 
-            color: #fff; 
-            letter-spacing: 1px;
-        }
-
-        #slide-content { 
-            font-size: 1.15em; 
-            line-height: 1.8; 
-            color: #cbd5e1; 
-            white-space: pre-line;
+        /* 頁碼：左下角、白色、Monospace */
+        .page-footer { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 40px; 
+            color: #ffffff; 
+            font-family: monospace; 
+            z-index: 20;
+            pointer-events: none;
+            font-size: 1.2em;
+            background: rgba(0, 0, 0, 0.3); /* 稍微深色背景確保白色字體在白色模型區可見 */
+            padding: 5px 10px;
+            border-radius: 5px;
         }
 
         .label-box {
-            border-left: 4px solid var(--accent-color);
-            padding-left: 25px;
+            border-left: 5px solid var(--accent-color);
+            padding-left: 20px;
         }
 
-        .author-info { 
-            margin-top: 40px; 
-            font-weight: bold; 
-            color: var(--accent-color); 
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-
-        /* 頁碼：左下角、白色、無特效 */
-        .page-footer { 
-            position: absolute; 
-            bottom: 30px; 
-            left: 40px; 
-            color: #ffffff; 
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
-            z-index: 20;
-            pointer-events: none;
-        }
+        #slide-title { font-size: 2.5em; margin: 0 0 10px 0; color: var(--text-main); }
+        #slide-content { font-size: 1.2em; line-height: 1.6; color: #5f6368; min-height: 100px; white-space: pre-line; }
+        .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
 
         .fade-in {
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -120,15 +103,15 @@
                 src="Model.glb" 
                 shadow-intensity="1"
                 environment-image="neutral"
-                exposure="1.2"
                 camera-controls
-                touch-action="none">
+                touch-action="none"
+                camera-orbit="180deg 75deg 105%">
             </model-viewer>
         </div>
 
         <div class="info-section">
             <div id="text-container" class="label-box">
-                <h1 id="slide-title"></h1>
+                <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
                 <div id="author" class="author-info"></div>
             </div>
@@ -147,38 +130,35 @@
 
         let currentPage = 0;
 
-        // 根據你提供的清單增加所有模組展示頁面
         const slideData = [
             { orbit: '180deg 75deg 105%', title: 'Puma Tank V3', content: '硬體結構與電子電路綜合展示', author: '項正宇', showAuthor: true },
-            { orbit: '0deg 75deg 80%', title: 'ESP32 主控制器', content: '系統核心，負責 WiFi/藍牙通訊\n以及所有感測器與驅動器的邏輯運算' },
-            { orbit: '45deg 80deg 85%', title: 'NRF24L01 天線', content: '高頻無線通訊模組\n確保坦克在遠距離操作下的信號穩定性' },
-            { orbit: '90deg 85deg 80%', title: 'L298N 驅動模組', content: '雙通道馬達驅動板\n將弱電信號轉換為推動馬達的高功率電流' },
-            { orbit: '135deg 70deg 90%', title: 'TT 馬達組', content: '坦克底盤動力來源\n配合減速齒輪組提供穩定的扭力輸出' },
-            { orbit: '180deg 80deg 95%', title: '繼電器模組', content: '電路開關控制\n用於切換高負載零件或特殊功能的供電狀態' },
-            { orbit: '225deg 75deg 85%', title: 'SG90 伺服馬達', content: '精確角度控制\n負責控制砲塔轉向或機械臂的細部動作' },
-            { orbit: '225deg 60deg 70%', title: '坦克砲塔', content: '搭載射擊機構的主軸\n結合泵浦與電磁閥實現自動化發射' },
-            { orbit: '270deg 85deg 90%', title: '電源系統 (電池)', content: '高效能供電核心\n提供整個載具長時間運作所需的電能' },
-            { orbit: '315deg 80deg 85%', title: 'LM2596S 降壓模組', content: '精確電壓轉換\n將電池高電壓降至 5V 供給控制板使用' },
-            { orbit: '360deg 75deg 80%', title: 'OLED 顯示螢幕', content: '即時狀態看板\n顯示當前電壓、連線品質與系統日誌' },
-            { orbit: '180deg 75deg 105%', title: '展示結束', content: '感謝您的觀看與指導', author: 'Project Complete', showAuthor: true }
+            { orbit: '0deg 75deg 80%', title: 'ESP32 主控制器', content: '控制核心，負責 WiFi 通訊與邏輯運算' },
+            { orbit: '45deg 80deg 85%', title: 'NRF24L01 天線', content: '2.4GHz 無線通訊，確保遙控穩定性' },
+            { orbit: '90deg 85deg 80%', title: 'L298N 驅動模組', content: '馬達電力分配與方向控制中心' },
+            { orbit: '135deg 70deg 90%', title: '繼電器模組', content: '用於大電流零件的開關控制' },
+            { orbit: '180deg 80deg 95%', title: 'TT 馬達', content: '底盤動力來源，驅動坦克履帶移動' },
+            { orbit: '225deg 75deg 85%', title: 'SG90 伺服馬達', content: '用於砲塔轉向或其他角度控制' },
+            { orbit: '225deg 60deg 70%', title: '坦克砲塔', content: '整合 Pump 與噴射機構的發射單元' },
+            { orbit: '270deg 85deg 90%', title: '電池組', content: '提供 7.4V - 12V 的動力電源' },
+            { orbit: '315deg 80deg 85%', title: 'LM2596S 降壓模組', content: '將高電壓轉為 5V 供給控制板' },
+            { orbit: '360deg 75deg 80%', title: '1.3吋 OLED 螢幕', content: '顯示系統資訊、電壓與連線狀態' },
+            { orbit: '180deg 75deg 105%', title: '展示結束', content: '感謝您的觀看', author: 'Project Complete', showAuthor: true }
         ];
 
         function updateSlide() {
             const data = slideData[currentPage];
 
-            // 文字動畫
             textContainer.classList.remove('fade-in');
             void textContainer.offsetWidth; 
             textContainer.classList.add('fade-in');
 
-            // 更新內容
             mv.cameraOrbit = data.orbit;
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
-            pageEl.innerText = `PAGE ${(currentPage + 1).toString().padStart(2, '0')} / ${slideData.length.toString().padStart(2, '0')}`;
+            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
 
             authorEl.style.display = data.showAuthor ? 'block' : 'none';
-            if (data.showAuthor) authorEl.innerText = `Author: ${data.author || ''}`;
+            if (data.showAuthor) authorEl.innerText = data.author || '';
         }
         
         window.addEventListener('keydown', (e) => {
