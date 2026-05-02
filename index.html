@@ -179,31 +179,46 @@
             }
 
             // 2. 動畫與旋轉邏輯
-          if (data.playAnimation) {
-    // 1. 播放內建動畫
-    mv.play();
+            if (data.playAnimation) {
+    // 1. 先切換到該頁面指定的初始角度
+    mv.cameraOrbit = data.orbit;
 
-    // 2. 獲取當前攝像頭狀態
-    const orbit = mv.getCameraOrbit();
-    
-    // 3. 強制計算新的角度 (弧度制：2 * Math.PI 等於 360度)
-    // 我們稍微偏移一點點，確保它偵測到數值變化
-    const targetTheta = orbit.theta + (Math.PI * 2); 
-    
-    // 4. 直接賦值給屬性
-    mv.cameraOrbit = `${targetTheta}rad ${orbit.phi}rad ${orbit.radius}m`;
+    // 定義一個一次性的檢查函數
+    const onCameraIdle = () => {
+        // 判斷是否已經轉到接近目標角度了（避免過早觸發）
+        // 2. 執行旋轉一圈
+        const orbit = mv.getCameraOrbit();
+        const targetTheta = orbit.theta + (Math.PI * 2); 
+        mv.cameraOrbit = `${targetTheta}rad ${orbit.phi}rad ${orbit.radius}m`;
 
-    // 5. 設定動畫播放多久後停止 (例如 240 毫秒)
-    setTimeout(() => {
-        mv.pause();
-    }, 240);
+        // 3. 旋轉啟動後，稍微延遲一點再撥放模型動畫（例如履帶動一下）
+        setTimeout(() => {
+            mv.play();
+            setTimeout(() => {
+                mv.pause();
+            }, 500); // 動畫播放長度
+        }, 500);
+
+        // 移除監聽器，避免之後的操作重複觸發
+        mv.removeEventListener('camera-change', checkArrival);
+    };
+
+    // 簡單的防抖處理：當相機停止移動後才執行
+    let timer;
+    const checkArrival = () => {
+        clearTimeout(timer);
+        timer = setTimeout(onCameraIdle, 100); 
+    };
+
+    mv.addEventListener('camera-change', checkArrival);
 
 } else {
+    // 一般頁面直接切換角度
     mv.pause();
     mv.currentTime = 0; 
-    // 回到資料定義的初始角度
     mv.cameraOrbit = data.orbit;
 }
+
             // 3. 更新文字（帶有切入動畫）
             textContainer.classList.remove('fade-in');
             void textContainer.offsetWidth; 
