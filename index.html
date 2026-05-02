@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>測試K</title>
+    <title>測試L</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -109,7 +109,6 @@
                 environment-image="neutral"
                 camera-controls
                 touch-action="none"
-                autoplay=""
                 camera-orbit="180deg 75deg 105%">
             </model-viewer>
         </div>
@@ -172,8 +171,11 @@
     }
 
     if (data.playAnimation) {
-        mv.pause();
-        mv.currentTime = 0.25;
+        mv.currentTime = 0; // 從頭開始
+        mv.play(); 
+        setTimeout(() => {
+            mv.pause();
+        }, 1000);
     } else {
         mv.pause();
         mv.currentTime = 0; 
