@@ -102,7 +102,9 @@
     </style>
 </head>
 <body>
-
+    <div id="status" style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; font-family: monospace; z-index: 1000; pointer-events: none;">
+        Orbit: <span id="orbit-value">Loading...</span>
+    </div>
     <div class="slide-deck">
         <div class="model-section">
             <model-viewer 
@@ -140,6 +142,21 @@
         const textContainer = document.querySelector('#text-container');
 
         let currentPage = 0;
+
+        const orbitDisplay = document.querySelector('#orbit-value');
+
+        mv.addEventListener('camera-change', () => {
+            // 取得當前的相機軌道數值
+            const orbit = mv.getCameraOrbit();
+    
+            // 將弧度 (rad) 轉換為角度 (deg) 方便閱讀
+            const theta = Math.round(orbit.theta * (180 / Math.PI));
+            const phi = Math.round(orbit.phi * (180 / Math.PI));
+            const radius = Math.round(orbit.radius * 100) / 100; // 距離保留兩位小數
+
+            // 顯示在畫面上，這串文字你可以直接複製去改 slideData 的 orbit
+            orbitDisplay.innerText = `${theta}deg ${phi}deg ${orbit.radius}m`;
+        });
 
         const slideData = [
             { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false },
