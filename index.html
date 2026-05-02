@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank V3 展示</title>
+    <title>展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -148,15 +148,14 @@
         mv.addEventListener('camera-change', () => {
             // 取得當前的相機軌道數值
             const orbit = mv.getCameraOrbit();
+            const target = mv.getCameraTarget();
     
             // 將弧度 (rad) 轉換為角度 (deg) 方便閱讀
             const theta = Math.round(orbit.theta * (180 / Math.PI));
             const phi = Math.round(orbit.phi * (180 / Math.PI));
             const radius = Math.round(orbit.radius * 100) / 100; // 距離保留兩位小數
 
-            // 顯示在畫面上，這串文字你可以直接複製去改 slideData 的 orbit
-            orbitDisplay.innerText = `${theta}deg ${phi}deg ${orbit.radius}m`;
-             console.log("當前中心點:", mv.getCameraTarget());
+            console.log("當前中心點:", target, "角度:", `${theta}deg ${phi}deg ${radius}m`);
         });
 
         const slideData = [
@@ -176,7 +175,7 @@
             { orbit: '585deg 158deg 40%',target: '0.182m 1.249m 1.032m', title: 'TTMotor', content: '伺服馬達控制細節', showAuthor: false, hideModel: false },
             { orbit: '160deg 85deg 30%',target: '0.088m 2.507m -1.562m', title: 'Turret(SG-90)', content: '伺服馬達控制細節', showAuthor: false, hideModel: false },
             { orbit: '90deg 85deg 20%',target: '-0.319m 2.251m 0.190m', title: 'Pump', content: '降壓模組與繼電器佈線', showAuthor: false, hideModel: false },
-            { orbit: '180deg 90deg 125%',target: '0m 1m 0.2m', title: '簡報結束', content: '感謝您的聆聽', author: 'Project: Puma Tank V3', showAuthor: true, hideModel: false }
+            { orbit: '123deg 75deg 105%',target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false }
         ];
 
         function updateSlide() {
