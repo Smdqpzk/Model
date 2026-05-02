@@ -181,9 +181,9 @@
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
                 setTimeout(() => {
-                 mv.play();
+                mv.cameraOrbit = "90deg 85deg 190%";
+                mv.play();
                 setTimeout(() => {
-                    mv.cameraOrbit = "90deg 85deg 190%";
                     mv.pause();
                 }, 240);
                 }, 2000);
