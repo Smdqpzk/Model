@@ -145,7 +145,7 @@
             { orbit: '180deg 75deg 105%', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false },
             { orbit: '210deg 80deg 90%', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
             { orbit: '90deg 85deg 90%', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true },
-            { orbit: '90deg 85deg 190%', title: 'Structure display', content: 'overall structure', showAuthor: false, hideModel: false, playAnimation: true },
+            { orbit: '180deg 75deg 105%', title: 'Structure display', content: 'overall structure', showAuthor: false, hideModel: false, playAnimation: true },
             { orbit: '270deg 0deg 150%', title: 'ESP32 (The core of the car)', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false },
             { orbit: '180deg 170deg 90%', title: '底盤結構', content: '驅動馬達與承重設計', showAuthor: false, hideModel: false },
             { orbit: '160deg 85deg 50%', title: '砲塔轉向', content: '伺服馬達控制細節', showAuthor: false, hideModel: false },
@@ -180,44 +180,18 @@
 
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
-    // 1. 先切換到該頁面指定的初始角度
-    mv.cameraOrbit = data.orbit;
-
-    // 定義一個一次性的檢查函數
-    const onCameraIdle = () => {
-        // 判斷是否已經轉到接近目標角度了（避免過早觸發）
-        // 2. 執行旋轉一圈
-        const orbit = mv.getCameraOrbit();
-        const targetTheta = orbit.theta + (Math.PI * 2); 
-        mv.cameraOrbit = `${targetTheta}rad ${orbit.phi}rad ${orbit.radius}m`;
-
-        // 3. 旋轉啟動後，稍微延遲一點再撥放模型動畫（例如履帶動一下）
-        setTimeout(() => {
-            mv.play();
-            setTimeout(() => {
+                setTimeout(() => {
+                 mv.play();
+                setTimeout(() => {
+                    mv.cameraOrbit = "90deg 85deg 190%";
+                    mv.pause();
+                }, 240);
+                }, 2000);
+            } else {
                 mv.pause();
-            }, 500); // 動畫播放長度
-        }, 500);
-
-        // 移除監聽器，避免之後的操作重複觸發
-        mv.removeEventListener('camera-change', checkArrival);
-    };
-
-    // 簡單的防抖處理：當相機停止移動後才執行
-    let timer;
-    const checkArrival = () => {
-        clearTimeout(timer);
-        timer = setTimeout(onCameraIdle, 100); 
-    };
-
-    mv.addEventListener('camera-change', checkArrival);
-
-} else {
-    // 一般頁面直接切換角度
-    mv.pause();
-    mv.currentTime = 0; 
-    mv.cameraOrbit = data.orbit;
-}
+                mv.currentTime = 0; 
+                mv.cameraOrbit = data.orbit;
+            }
 
             // 3. 更新文字（帶有切入動畫）
             textContainer.classList.remove('fade-in');
