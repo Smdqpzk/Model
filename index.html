@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>展示E</title>
+    <title>展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -254,20 +254,16 @@ if (mv.model) {
                     mv.play();
                 }
                 else if (data.Animation == "CLOSE") {
-                   setTimeout(() => {
-                        mv.cameraOrbit = "90deg 85deg 190%";
-                        mv.currentTime = 0; 
+                    mv.currentTime = 0; 
                         setTimeout(() => {
                             mv.animationName = "CLOSE";
                             mv.play();
                                 
                             setTimeout(() => {
                                 mv.pause();
-                            }, 250); // 播放 230 毫秒後停止
-                        }, 100); 
-                    }, 1000);
-                }
-            } else {
+                            }, 230); // 播放 230 毫秒後停止
+                        }, 100);
+                } else {
                 mv.pause();
                 mv.currentTime = 0; 
                 mv.cameraOrbit = data.orbit;
