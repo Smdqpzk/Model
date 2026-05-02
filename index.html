@@ -180,10 +180,12 @@
 
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
-                mv.play();
+                setTimeout(() => {
+                 mv.play();
                 setTimeout(() => {
                     mv.pause();
-                }, 240);
+                }, 240);   
+                }, 2000);
             } else {
                 mv.pause();
                 mv.currentTime = 0; 
