@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC 展示</title>
+    <title>Puma Tank V3 展示</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
@@ -181,14 +181,14 @@
             // 2. 動畫與旋轉邏輯
             if (data.playAnimation) {
                 setTimeout(() => {
-                mv.cameraOrbit = "90deg 85deg 190%";
-                setTimeout(() => {
-                    mv.play();
-                setTimeout(() => {
-                    mv.pause();
-                }, 240);
-                }, 250);
-                }, 2000);
+                    mv.cameraOrbit = "90deg 85deg 190%";
+                    setTimeout(() => {
+                        mv.play();
+                        setTimeout(() => {
+                            mv.pause();
+                        }, 240);
+                    }, 100);
+                }, 1000);
             } else {
                 mv.pause();
                 mv.currentTime = 0; 
