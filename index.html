@@ -9,8 +9,8 @@
 
     <style>
         :root {
-            --bg-color: #000000; /* 改為全黑背景 */
-            --text-main: #ffffff; /* 文字改為白色 */
+            --bg-color: #000000;
+            --text-main: #ffffff;
             --text-sub: #bdc1c6;
             --accent-color: #1a73e8;
         }
@@ -39,10 +39,10 @@
             border: 1px solid #222;
         }
 
-        /* 左側：模型展示區 */
         .model-section {
             flex: 1.2; 
             background: #000000;
+            display: block; /* 預設顯示 */
         }
 
         model-viewer {
@@ -51,7 +51,6 @@
             --interpolation-decay: 100;
         }
 
-        /* 右側：文字說明區 */
         .info-section {
             flex: 1;
             padding: 50px;
@@ -63,7 +62,6 @@
             z-index: 10;
         }
 
-        /* 文字切入動畫 (Slide In from Right) */
         .fade-in {
             animation: slideIn 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
@@ -76,13 +74,13 @@
         .label-box {
             border-left: 5px solid var(--accent-color);
             padding-left: 20px;
+            transition: all 0.3s ease;
         }
 
         #slide-title { font-size: 2.8em; margin: 0 0 10px 0; color: var(--text-main); }
         #slide-content { font-size: 1.2em; line-height: 1.6; color: var(--text-sub); min-height: 100px; white-space: pre-line; }
         .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
 
-        /* 左下角白色頁碼 */
         .page-footer { 
             position: absolute; 
             bottom: 20px; 
@@ -125,7 +123,7 @@
             </div>
         </div>
 
-        <div id="page-num" class="page-footer"></div>
+        <div id="page-num" class="page-footer">PAGE 1 / --</div>
         <div class="hint">Use Arrow Keys to Navigate</div>
     </div>
 
@@ -137,158 +135,114 @@
         const authorEl = document.querySelector('#author');
         const pageEl = document.querySelector('#page-num');
         const textContainer = document.querySelector('#text-container');
+        const modelSection = document.querySelector('.model-section');
+        const infoSection = document.querySelector('.info-section');
 
         let currentPage = 0;
 
-        const orbitDisplay = document.querySelector('#orbit-value');
-
-        mv.addEventListener('camera-change', () => {
-            // 取得當前的相機軌道數值
-            const orbit = mv.getCameraOrbit();
-            const target = mv.getCameraTarget();
-    
-            // 將弧度 (rad) 轉換為角度 (deg) 方便閱讀
-            const theta = Math.round(orbit.theta * (180 / Math.PI));
-            const phi = Math.round(orbit.phi * (180 / Math.PI));
-            const radius = Math.round(orbit.radius * 100) / 100; // 距離保留兩位小數
-
-            console.log("當前中心點:", target, "角度:", `${theta}deg ${phi}deg ${radius}m`);
-        });
-
         const slideData = [
-            { orbit: '131deg 74deg 105%',target: '0m 1m 0m', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false,hideborder: false },
-            { orbit: '210deg 80deg 90%',target: '0m 1m 0m', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true,hideborder:true },
-            { orbit: '90deg 85deg 190',target: '0m 1m 0m', title: 'OVERVIEW', content: 'Materials:\n• About the car(Tank)\n• Structure display\n• Bottom structure\n• Details', showAuthor: false, hideModel: true,hideborder: true },
-            { orbit: '90deg 85deg 190',target: '0m 1m 0m', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true,hideborder: true },
-            { orbit: '90deg 85deg 190%',target: '0m 1m 0m', title: 'Structure display', content: 'Motors', showAuthor: false, hideModel: false, playAnimation: false,TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump"],hideborder:false },
-            { orbit: '90deg 85deg 190%',target: '0m 1m 0m', title: 'Structure display', content: 'Modules', showAuthor: false, hideModel: false, playAnimation: false,TragetPart:["ESP32","L298N","Displayer","ANTENNA","V","Relay"],hideborder:false },
-            { orbit: '210deg 80deg 90%',target: '0m 1m 0m', title: 'Structure display', content: 'overall structure', showAuthor: false, hideModel: false, playAnimation: true,Animation:"OPEN",TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump","ESP32","L298N","Displayer","ANTENNA","V","Relay"],hideborder:false },
-            { orbit: '180deg 170deg 90%',target: '0m 1m 0m', title: 'Bottom structure', content: 'Steering mechanism', showAuthor: false, hideModel: false,playAnimation: true,Animation:"R&L",TragetPart:["Bottom"],hideborder:false },
-            { orbit: '90deg 85deg 190',target: '0m 1m 0m', title: 'Details', content: '• ESP32\n• L298N\n• SG-90\n• 1.3" Displayer\n• NRF24L01\n• LM2596S\n• Relay\n• Power\n• TTMotor\n• Turret(SG-90)\n• Pump', showAuthor: false, hideModel: true,hideborder:true },
-            { orbit: '270deg 90deg 10%',target: '-0.625m 1.462m -0.764m', title: 'ESP32 (The core of the car)', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["ESP32"],hideborder:false },
-            { orbit: '223deg 82deg 20%',target: '-0.499m 1.734m -1.788m', title: 'L298N', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["L298N"],hideborder:false },
-            { orbit: '168deg 31deg 30%',target: '-0.017m 1.687m -3.004m', title: 'SG-90', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["DirMotor"],hideborder:false },
-            { orbit: '137deg 51deg 40%',target: '0.623m 1.570m -2.136m', title: 'Displayer', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["Displayer"],hideborder:false },
-            { orbit: '137deg 51deg 30%',target: '0.494m 1.624m -2.416m', title: 'NRF24L01', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["ANTENNA"],hideborder:false },
-            { orbit: '19deg 78deg 20%',target: '0.502m 1.532m -1.197m', title: 'LM2596S', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["V"],hideborder:false },
-            { orbit: '-97deg 78deg 50%',target: '-0.249m 2.112m 1.936m', title: 'Relay', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["Relay"],hideborder:false },
-            { orbit: '423deg 88deg 50%',target: '0.437m 1.362m 1.373m', title: 'Power', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["Power"],hideborder:false },
-            { orbit: '585deg 158deg 40%',target: '0.182m 1.249m 1.032m', title: 'TTMotor', content: '伺服馬達控制細節', showAuthor: false, hideModel: false,TragetPart:"TTMotor" },
-            { orbit: '160deg 85deg 30%',target: '0.088m 2.507m -1.562m', title: 'Turret(SG-90)', content: '伺服馬達控制細節', showAuthor: false, hideModel: false,TragetPart:"TopMotor" },
-            { orbit: '90deg 85deg 20%',target: '-0.319m 2.251m 0.190m', title: 'Pump', content: '降壓模組與繼電器佈線', showAuthor: false, hideModel: false,TragetPart:"Pump" },
-            { orbit: '123deg 75deg 105%',target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false }
+            { orbit: '131deg 74deg 105%', target: '0m 1m 0m', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false, hideborder: false },
+            { orbit: '210deg 80deg 90%', target: '0m 1m 0m', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true, hideborder: true },
+            { orbit: '90deg 85deg 190', target: '0m 1m 0m', title: 'OVERVIEW', content: 'Materials:\n• About the car(Tank)\n• Structure display\n• Bottom structure\n• Details', showAuthor: false, hideModel: true, hideborder: true },
+            { orbit: '90deg 85deg 190', target: '0m 1m 0m', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true, hideborder: true },
+            { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Structure display', content: 'Motors', TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump"] },
+            { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Structure display', content: 'Modules', TragetPart:["ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
+            { orbit: '210deg 80deg 90%', target: '0m 1m 0m', title: 'Structure display', content: 'overall structure', playAnimation: true, Animation:"OPEN", TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump","ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
+            { orbit: '180deg 170deg 90%', target: '0m 1m 0m', title: 'Bottom structure', content: 'Steering mechanism', playAnimation: true, Animation:"R&L", TragetPart:["Bottom"] },
+            { orbit: '90deg 85deg 190', target: '0m 1m 0m', title: 'Details', content: '• ESP32\n• L298N\n• SG-90\n• 1.3" Displayer\n• NRF24L01\n• LM2596S\n• Relay\n• Power\n• TTMotor\n• Turret(SG-90)\n• Pump', hideModel: true },
+            { orbit: '270deg 90deg 10%', target: '-0.625m 1.462m -0.764m', title: 'ESP32 (The core of the car)', content: 'Main control unit location and wiring', TragetPart:["ESP32"] },
+            { orbit: '223deg 82deg 20%', target: '-0.499m 1.734m -1.788m', title: 'L298N', content: 'Motor Driver module', TragetPart:["L298N"] },
+            { orbit: '168deg 31deg 30%', target: '-0.017m 1.687m -3.004m', title: 'SG-90', content: 'Steering Servo', TragetPart:["DirMotor"] },
+            { orbit: '137deg 51deg 40%', target: '0.623m 1.570m -2.136m', title: 'Displayer', content: '1.3" OLED Display', TragetPart:["Displayer"] },
+            { orbit: '137deg 51deg 30%', target: '0.494m 1.624m -2.416m', title: 'NRF24L01', content: '2.4G Wireless Antenna', TragetPart:["ANTENNA"] },
+            { orbit: '19deg 78deg 20%', target: '0.502m 1.532m -1.197m', title: 'LM2596S', content: 'Voltage Regulator', TragetPart:["V"] },
+            { orbit: '-97deg 78deg 50%', target: '-0.249m 2.112m 1.936m', title: 'Relay', content: 'Pump Switch Control', TragetPart:["Relay"] },
+            { orbit: '423deg 88deg 50%', target: '0.437m 1.362m 1.373m', title: 'Power', content: 'Battery Compartment', TragetPart:["Power"] },
+            { orbit: '585deg 158deg 40%', target: '0.182m 1.249m 1.032m', title: 'TTMotor', content: 'Drive Motors', TragetPart:"TTMotor" },
+            { orbit: '160deg 85deg 30%', target: '0.088m 2.507m -1.562m', title: 'Turret(SG-90)', content: 'Turret Control Servo', TragetPart:"TopMotor" },
+            { orbit: '90deg 85deg 20%', target: '-0.319m 2.251m 0.190m', title: 'Pump', content: 'Water Pump System', TragetPart:"Pump" },
+            { orbit: '123deg 75deg 105%', target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you for listening', author: 'Project: Puma Tank V3', showAuthor: true }
         ];
+
+        function applyHighlightLogic(mv, targetList) {
+            if (!mv.model || !mv.model.materials) return;
+            const targets = Array.isArray(targetList) ? targetList : [targetList];
+
+            mv.model.materials.forEach((mat) => {
+                const pbr = mat.pbrMetallicRoughness;
+                const matName = mat.name || "";
+                const isTarget = targets.length === 0 || targets.some(name => name && matName.includes(name));
+
+                if (isTarget) {
+                    pbr.setBaseColorFactor([1, 1, 1, 1]);
+                } else {
+                    pbr.setBaseColorFactor([0.15, 0.15, 0.15, 1.0]);
+                }
+            });
+        }
 
         function updateSlide() {
             const data = slideData[currentPage];
-            const modelSection = document.querySelector('.model-section');
-            const infoSection = document.querySelector('.info-section');
 
-            // 1. 處理模型隱藏/顯示
+            // 1. 模型與佈局控制
             if (data.hideModel) {
                 modelSection.style.display = 'none';
-                textContainer.style.paddingLeft = '0';
+                infoSection.style.textAlign = 'center';
+                infoSection.style.alignItems = 'center';
             } else {
                 modelSection.style.display = 'block';
-                textContainer.style.paddingLeft = '20px';
-            }
-            if (data.hideborder) {
                 infoSection.style.textAlign = 'left';
+                infoSection.style.alignItems = 'flex-start';
+            }
+
+            // 2. 邊框邏輯
+            if (data.hideborder) {
                 infoSection.style.borderLeft = 'none';
                 textContainer.style.borderLeft = 'none';
-            }else{
-                infoSection.style.textAlign = 'left';
-                infoSection.style.borderLeft = '1px solid #222';
+                textContainer.style.paddingLeft = '0';
+            } else {
+                infoSection.style.borderLeft = data.hideModel ? 'none' : '1px solid #222';
                 textContainer.style.borderLeft = '5px solid var(--accent-color)';
+                textContainer.style.paddingLeft = '20px';
             }
-            // 1. 定義核心塗色邏輯
-function applyHighlightLogic(mv, targetList) {
-    if (!mv.model || !mv.model.materials) return;
 
-    // 安全檢查：確保 targetList 是陣列
-    const targets = Array.isArray(targetList) ? targetList : [targetList];
+            // 3. 相機位置與零件高亮
+            mv.cameraOrbit = data.orbit;
+            mv.cameraTarget = data.target || "auto auto auto";
+            
+            if (mv.model) applyHighlightLogic(mv, data.TragetPart || []);
 
-    mv.model.materials.forEach((mat) => {
-        const pbr = mat.pbrMetallicRoughness;
-        const matName = mat.name || "";
-        const texName = pbr.baseColorTexture?.texture?.name || "";
-
-        // 檢查是否為目標
-        const isTarget = targets.some(name => 
-            name && (matName.includes(name) || texName.includes(name))
-        );
-
-        if (isTarget) {
-            // 目標：恢復預設原色 (白色濾鏡 = 原色)
-            pbr.setBaseColorFactor([1, 1, 1, 1]);
-        } else {
-            // 非目標：變暗
-            pbr.setBaseColorFactor([0.15, 0.15, 0.15, 1.0]);
-        }
-    });
-}
-
-if (mv.model) {
-        applyHighlightLogic(mv, data.TragetPart || []);
-    } else {
-        mv.addEventListener('load', () => {
-            applyHighlightLogic(mv, data.TragetPart || []);
-        }, { once: true });
-    }
-            // 2. 動畫與旋轉邏輯
+            // 4. 動畫邏輯
             if (data.playAnimation) {
-                if (data.Animation == "OPEN") {
+                mv.currentTime = 0;
+                mv.animationName = data.Animation;
+                if (data.Animation === "OPEN") {
                     setTimeout(() => {
-                        mv.cameraOrbit = "210deg 80deg 190%";
-                        mv.currentTime = 0; 
-                        setTimeout(() => {
-                            mv.animationName = "OPEN";
-                            mv.play();
-                
-                            setTimeout(() => {
-                                mv.pause();
-                            }, 230); // 播放 230 毫秒後停止
-                        }, 100); 
-                    }, 1000);
-                } 
-                else if (data.Animation == "R&L") {
-                    mv.currentTime = 0; 
-                    mv.cameraOrbit = "180deg 170deg 90%";
-                    mv.animationName = "R&L"; // 記得這裡要改成 "R&L"
+                        mv.play();
+                        setTimeout(() => mv.pause(), 230);
+                    }, 500);
+                } else {
                     mv.play();
                 }
             } else {
                 mv.pause();
-                mv.currentTime = 0; 
-                mv.cameraOrbit = data.orbit;
+                mv.currentTime = 0;
             }
-            if (data.target) {
-                mv.cameraTarget = data.target; 
-            } else{
-                mv.cameraTarget = "auto auto auto";
-            }
-            // 3. 更新文字（帶有切入動畫）
+
+            // 5. 文字更新
             textContainer.classList.remove('fade-in');
             void textContainer.offsetWidth; 
             textContainer.classList.add('fade-in');
 
             titleEl.innerText = data.title;
-            contentEl.innerText = data.content;
-            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
-
-            // 4. 處理圖片
-            if (data.image) {
-                imgEl.src = data.image;
-                imgEl.style.display = 'block';
-            } else {
-                imgEl.style.display = 'none';
-            }
-
-            // 5. 作者顯示
+            contentEl.innerText = data.content || "";
             authorEl.style.display = data.showAuthor ? 'block' : 'none';
-            if (data.showAuthor) authorEl.innerText = data.author || '';
+            authorEl.innerText = data.author || '';
+            
+            // 頁數顯示更新 (共 21 頁)
+            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
         }
-        
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) {
                 currentPage++;
@@ -299,7 +253,14 @@ if (mv.model) {
             }
         });
 
-        updateSlide();
+        // 確保啟動時能讀到正確狀態
+        document.addEventListener('DOMContentLoaded', () => {
+            if (mv.model) {
+                updateSlide();
+            } else {
+                mv.addEventListener('load', updateSlide, { once: true });
+            }
+        });
     </script>
 </body>
 </html>
