@@ -2,114 +2,129 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>English Presentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puma Tank V3 展示</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        :root { --bg-color: #030303; --text-main: #f0f0f0; --text-sub: #bdc1c6; --accent-color: #00e5ff; --danger-color: #ff3d00; --border-color: #2a2a2a; }
-        body { font-family: sans-serif; background-color: #000; color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        
-        .slide-deck { display: flex; width: 90vw; height: 80vh; background: var(--bg-color); border-radius: 4px; border: 1px solid var(--border-color); overflow: hidden; position: relative; }
-        
-        /* 頁面內容區域 */
-        .content-area { display: flex; flex: 1; height: calc(100% - 10px); }
-        .model-section { flex: 1.6; background: #010101; position: relative; transition: all 0.5s ease; }
-        .info-section { flex: 1; padding: 60px 40px; display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--border-color); transition: all 0.5s ease; }
-        
-        /* 封面模式 */
-        .is-cover .model-section { display: none; }
-        .is-cover .info-section { flex: 1; border-left: none; align-items: center; text-align: center; }
-        .is-cover #slide-title { font-size: 3.5em; }
-
-        #slide-title { font-size: 2.2em; font-weight: 900; text-transform: uppercase; margin: 0 0 20px 0; display: inline-flex; align-items: center; gap: 15px; }
-        #slide-title::before { content: ''; width: 15px; height: 15px; background-color: var(--danger-color); clip-path: polygon(100% 0, 100% 50%, 50% 100%, 0% 100%, 0 0); }
-        
-        #slide-content { font-size: 1.1em; color: var(--text-sub); line-height: 1.8; white-space: pre-line; margin-bottom: 20px; }
-        #slide-img { max-width: 200px; display: none; border: 1px solid var(--accent-color); }
-        
-        /* 進度條改為固定在最下方 */
-        .nav-progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; background: #1a1a1a; }
-        .nav-progress-bar { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.4s ease; }
+        :root { --bg-color: #000000; --text-main: #ffffff; --text-sub: #bdc1c6; --accent-color: #1a73e8; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #0a0a0a; color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .slide-deck { display: flex; width: 95vw; height: 85vh; background: var(--bg-color); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); overflow: hidden; position: relative; border: 1px solid #222; }
+        .model-section { flex: 1.2; background: #000000; }
+        model-viewer { width: 100%; height: 100%; --interpolation-decay: 100; }
+        .info-section { flex: 1; padding: 50px; display: flex; flex-direction: column; justify-content: center; background: #000000; border-left: 1px solid #222; z-index: 10; }
+        .fade-in { animation: slideIn 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        .label-box { border-left: 5px solid var(--accent-color); padding-left: 20px; }
+        #slide-title { font-size: 2.8em; margin: 0 0 10px 0; color: var(--text-main); }
+        #slide-content { font-size: 1.2em; line-height: 1.6; color: var(--text-sub); min-height: 100px; white-space: pre-line; }
+        .author-info { margin-top: 30px; font-weight: bold; color: var(--accent-color); font-size: 1.1em; }
+        .page-footer { position: absolute; bottom: 20px; left: 40px; color: #ffffff; font-family: monospace; z-index: 20; pointer-events: none; font-size: 1.1em; background: rgba(255, 255, 255, 0.1); padding: 5px 12px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .hint { position: absolute; bottom: 15px; right: 15px; font-size: 0.7em; color: #444; }
     </style>
 </head>
 <body>
-    <div class="slide-deck" id="deck">
-        <div class="content-area">
-            <div class="model-section">
-                <model-viewer id="presenter" src="Model.glb" shadow-intensity="1.5" camera-controls interaction-prompt="none"></model-viewer>
-            </div>
-            <div class="info-section" id="info-section">
-                <h1 id="slide-title"></h1>
+    <div class="slide-deck">
+        <div class="model-section">
+            <model-viewer id="presenter" src="Model.glb" shadow-intensity="1" environment-image="neutral" camera-controls touch-action="none" interaction-prompt="none" camera-orbit="180deg 75deg 105%"></model-viewer>
+        </div>
+        <div class="info-section">
+            <div id="text-container" class="label-box">
+                <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
-                <img id="slide-img" src="">
-                <div id="author" style="color: var(--accent-color); margin-top: 20px;"></div>
+                <img id="slide-img" src="" style="max-width: 100%; height: auto; display: none; margin: 20px 0; border-radius: 8px; border: 1px solid #333;">
+                <div id="author" class="author-info"></div>
             </div>
         </div>
-        <div class="nav-progress-container"><div id="nav-bar" class="nav-progress-bar"></div></div>
+        <div id="page-num" class="page-footer"></div>
+        <div class="hint">Use Arrow Keys to Navigate</div>
     </div>
-
     <script>
         const mv = document.querySelector('#presenter');
-        const deck = document.querySelector('#deck');
+        const imgEl = document.querySelector('#slide-img');
         const titleEl = document.querySelector('#slide-title');
         const contentEl = document.querySelector('#slide-content');
-        const imgEl = document.querySelector('#slide-img');
         const authorEl = document.querySelector('#author');
-        const navBarEl = document.querySelector('#nav-bar');
-        
+        const pageEl = document.querySelector('#page-num');
+        const textContainer = document.querySelector('#text-container');
         let currentPage = 0;
+
         const slideData = [
-            { orbit: '131deg 74deg 105%', target: '0m 1m 0m', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: true, modelSrc: 'Model.glb' },
-            { orbit: '210deg 80deg 90%', target: '0m 1m 0m', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
-            { orbit: '90deg 85deg 190', target: '0m 1m 0m', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true },
-            { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Structure display', content: 'Modes', showAuthor: false, hideModel: false, playAnimation: false, TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump"] },
-            { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Structure display', content: 'Modules', showAuthor: false, hideModel: false, playAnimation: false, TragetPart:["ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
-            { orbit: '210deg 80deg 90%', target: '0m 1m 0m', title: 'Structure display', content: 'Overall Structure', showAuthor: false, hideModel: false, playAnimation: true, Animation:"OPEN", TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump","ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
-            { orbit: '180deg 170deg 90%', target: '0m 1m 0m', title: 'Bottom Structure', content: 'Steering System', showAuthor: false, hideModel: false, playAnimation: true, Animation:"R&L", TragetPart:["Bottom"] },
-            { orbit: '270deg 90deg 10%', target: '-0.625m 1.462m -0.764m', title: 'ESP32 (The core of the car)', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false, TragetPart:["ESP32"] },
-            { orbit: '223deg 82deg 20%', target: '-0.499m 1.734m -1.788m', title: 'L298N', content: 'Bridge with motor', showAuthor: false, hideModel: false, TragetPart:["L298N"] },
-            { orbit: '168deg 31deg 30%', target: '-0.017m 1.687m -3.004m', title: 'SG-90', content: 'Directional control', showAuthor: false, hideModel: false, TragetPart:["DirMotor"] },
-            { orbit: '137deg 51deg 40%', target: '0.623m 1.570m -2.136m', title: 'Displayer', content: 'Status display', showAuthor: false, hideModel: false, TragetPart:["Displayer"] },
-            { orbit: '137deg 51deg 30%', target: '0.494m 1.624m -2.416m', title: 'NRF24L01', content: 'Connecting device', showAuthor: false, hideModel: false, TragetPart:["ANTENNA"] },
-            { orbit: '19deg 78deg 20%', target: '0.502m 1.532m -1.197m', title: 'LM2596S', content: 'Step-down module', showAuthor: false, hideModel: false, TragetPart:["V"] },
-            { orbit: '-97deg 78deg 50%', target: '-0.249m 2.112m 1.936m', title: 'Relay', content: 'Control valve to open or close', showAuthor: false, hideModel: false, TragetPart:["Relay"] },
-            { orbit: '423deg 88deg 50%', target: '0.437m 1.362m 1.373m', title: 'Power', content: 'Car power', showAuthor: false, hideModel: false, TragetPart:["Power"] },
-            { orbit: '585deg 158deg 40%', target: '0.182m 1.249m 1.032m', title: 'TTMotor', content: 'Servo motor control', showAuthor: false, hideModel: false, TragetPart:"TTMotor" },
-            { orbit: '160deg 85deg 30%', target: '0.088m 2.507m -1.562m', title: 'Turret(SG-90)', content: 'Servo motor control', showAuthor: false, hideModel: false, TragetPart:"TopMotor" },
-            { orbit: '90deg 85deg 20%', target: '-0.319m 2.251m 0.190m', title: 'Pump', content: 'Cars cannon loader', showAuthor: false, hideModel: false, TragetPart:"Pump" },
-            { orbit: '123deg 75deg 105%', target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false, modelSrc: 'Mod.glb', imgSrc: 'QRCode.png' }
+            { orbit: '131deg 74deg 105%',target: '0m 1m 0m', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: false,modelSrc: 'Model.glb' },
+            { orbit: '210deg 80deg 90%',target: '0m 1m 0m', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
+            { orbit: '90deg 85deg 190',target: '0m 1m 0m', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true },
+            { orbit: '90deg 85deg 190%',target: '0m 1m 0m', title: 'Structure display', content: 'Modes', showAuthor: false, hideModel: false, playAnimation: false,TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump"] },
+            { orbit: '90deg 85deg 190%',target: '0m 1m 0m', title: 'Structure display', content: 'Modules', showAuthor: false, hideModel: false, playAnimation: false,TragetPart:["ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
+            { orbit: '210deg 80deg 90%',target: '0m 1m 0m', title: 'Structure display', content: 'Overall Structure', showAuthor: false, hideModel: false, playAnimation: true,Animation:"OPEN",TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump","ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
+            { orbit: '180deg 170deg 90%',target: '0m 1m 0m', title: 'Bottom Structure', content: 'Steering System', showAuthor: false, hideModel: false,playAnimation: true,Animation:"R&L",TragetPart:["Bottom"] },
+            { orbit: '270deg 90deg 10%',target: '-0.625m 1.462m -0.764m', title: 'ESP32 (The core of the car)', content: 'Main control unit location and wiring', showAuthor: false, hideModel: false,TragetPart:["ESP32"] },
+            { orbit: '223deg 82deg 20%',target: '-0.499m 1.734m -1.788m', title: 'L298N', content: 'Bridge with motor', showAuthor: false, hideModel: false,TragetPart:["L298N"] },
+            { orbit: '168deg 31deg 30%',target: '-0.017m 1.687m -3.004m', title: 'SG-90', content: 'Directional control', showAuthor: false, hideModel: false,TragetPart:["DirMotor"] },
+            { orbit: '137deg 51deg 40%',target: '0.623m 1.570m -2.136m', title: 'Displayer', content: 'Status display', showAuthor: false, hideModel: false,TragetPart:["Displayer"] },
+            { orbit: '137deg 51deg 30%',target: '0.494m 1.624m -2.416m', title: 'NRF24L01', content: 'Connecting device', showAuthor: false, hideModel: false,TragetPart:["ANTENNA"] },
+            { orbit: '19deg 78deg 20%',target: '0.502m 1.532m -1.197m', title: 'LM2596S', content: 'Step-down module', showAuthor: false, hideModel: false,TragetPart:["V"] },
+            { orbit: '-97deg 78deg 50%',target: '-0.249m 2.112m 1.936m', title: 'Relay', content: 'Control valve to open or close', showAuthor: false, hideModel: false,TragetPart:["Relay"] },
+            { orbit: '423deg 88deg 50%',target: '0.437m 1.362m 1.373m', title: 'Power', content: 'Car power', showAuthor: false, hideModel: false,TragetPart:["Power"] },
+            { orbit: '585deg 158deg 40%',target: '0.182m 1.249m 1.032m', title: 'TTMotor', content: 'Servo motor control', showAuthor: false, hideModel: false,TragetPart:"TTMotor" },
+            { orbit: '160deg 85deg 30%',target: '0.088m 2.507m -1.562m', title: 'Turret(SG-90)', content: 'Servo motor control', showAuthor: false, hideModel: false,TragetPart:"TopMotor" },
+            { orbit: '90deg 85deg 20%',target: '-0.319m 2.251m 0.190m', title: 'Pump', content: 'Cars cannon loader', showAuthor: false, hideModel: false,TragetPart:"Pump" },
+            { orbit: '123deg 75deg 105%',target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false,modelSrc: 'Mod.glb' }
         ];
 
         async function updateSlide() {
             const data = slideData[currentPage];
-            deck.classList.toggle('is-cover', data.hideModel);
-
-            if (!data.hideModel) {
-                if (mv.src !== (data.modelSrc || 'Model.glb')) mv.src = data.modelSrc || 'Model.glb';
+            const modelSection = document.querySelector('.model-section');
+            
+            // 處理模型切換
+            const targetModel = data.modelSrc || 'Model.glb';
+            if (mv.getAttribute('src') !== targetModel) {
+                mv.src = targetModel;
                 await mv.updateComplete;
-                if (mv.model && data.TragetPart) {
-                    mv.model.materials.forEach(mat => {
-                        const isTarget = Array.isArray(data.TragetPart) ? data.TragetPart.includes(mat.name) : (data.TragetPart === mat.name);
-                        mat.pbrMetallicRoughness.setBaseColorFactor(isTarget ? [1, 1, 1, 1] : [0.15, 0.15, 0.15, 1.0]);
-                    });
-                }
-                if (data.playAnimation) { mv.animationName = data.Animation; mv.play(); }
-                else { mv.pause(); mv.currentTime = 0; mv.cameraOrbit = data.orbit; }
-                mv.cameraTarget = data.target || "auto auto auto";
             }
 
+            // 處理隱藏/顯示
+            modelSection.style.display = data.hideModel ? 'none' : 'block';
+            
+            // 塗色邏輯
+            function applyHighlightLogic(mv, targetList) {
+                if (!mv.model || !mv.model.materials) return;
+                const targets = Array.isArray(targetList) ? targetList : [targetList];
+                mv.model.materials.forEach((mat) => {
+                    const pbr = mat.pbrMetallicRoughness;
+                    const matName = mat.name || "";
+                    const texName = pbr.baseColorTexture?.texture?.name || "";
+                    const isTarget = targets.some(name => name && (matName.includes(name) || texName.includes(name)));
+                    pbr.setBaseColorFactor(isTarget ? [1, 1, 1, 1] : [0.15, 0.15, 0.15, 1.0]);
+                });
+            }
+            if (mv.model) applyHighlightLogic(mv, data.TragetPart || []);
+
+            // 處理動畫與相機
+            if (data.playAnimation) {
+                mv.animationName = data.Animation;
+                mv.play();
+            } else {
+                mv.pause();
+                mv.currentTime = 0;
+                mv.cameraOrbit = data.orbit;
+            }
+            mv.cameraTarget = data.target || "auto auto auto";
+
+            // UI 更新
+            textContainer.classList.remove('fade-in');
+            void textContainer.offsetWidth;
+            textContainer.classList.add('fade-in');
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
-            authorEl.innerText = data.showAuthor ? data.author : '';
-            imgEl.style.display = data.imgSrc ? 'block' : 'none';
-            if (data.imgSrc) imgEl.src = data.imgSrc;
-            
-            navBarEl.style.width = `${((currentPage + 1) / slideData.length) * 100}%`;
+            pageEl.innerText = `PAGE ${currentPage + 1} / ${slideData.length}`;
+            authorEl.style.display = data.showAuthor ? 'block' : 'none';
+            if (data.showAuthor) authorEl.innerText = data.author || '';
         }
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) { currentPage++; updateSlide(); }
             else if (e.key === 'ArrowLeft' && currentPage > 0) { currentPage--; updateSlide(); }
         });
+
         updateSlide();
     </script>
 </body>
