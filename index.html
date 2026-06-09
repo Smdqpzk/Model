@@ -51,7 +51,8 @@
         .label-box { border-left: 4px solid var(--accent-color); padding-left: 25px; }
         #slide-title { font-size: 2.5em; margin: 0 0 15px 0; letter-spacing: -1px; }
         #slide-content { font-size: 1.1em; line-height: 1.8; color: var(--text-sub); min-height: 120px; white-space: pre-line; }
-        #slide-img { max-width: 300px; height: auto; display: none; margin: 20px 0; border-radius: 12px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        /* 圖片大小已調整為 180px */
+        #slide-img { max-width: 180px; height: auto; display: none; margin: 20px 0; border-radius: 12px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         
         .author-info { margin-top: 25px; font-weight: 600; color: var(--accent-color); font-size: 1em; text-transform: uppercase; letter-spacing: 1px; }
         .page-footer { position: absolute; bottom: 25px; left: 40px; color: #666; font-family: monospace; z-index: 20; }
@@ -104,7 +105,7 @@
             { orbit: '585deg 158deg 40%', target: '0.182m 1.249m 1.032m', title: 'TTMotor', content: 'Servo motor control', showAuthor: false, hideModel: false, TragetPart:"TTMotor" },
             { orbit: '160deg 85deg 30%', target: '0.088m 2.507m -1.562m', title: 'Turret(SG-90)', content: 'Servo motor control', showAuthor: false, hideModel: false, TragetPart:"TopMotor" },
             { orbit: '90deg 85deg 20%', target: '-0.319m 2.251m 0.190m', title: 'Pump', content: 'Cars cannon loader', showAuthor: false, hideModel: false, TragetPart:"Pump" },
-            { orbit: '123deg 75deg 105%', target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false, modelSrc: 'Mod.glb', img: 'QRCode.png' }
+            { orbit: '123deg 75deg 105%', target: '0m 1m 0m', title: 'Presentation End', content: 'Thank you', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false, modelSrc: 'Mod.glb', img: 'your-image-url.jpg' }
         ];
 
         async function updateSlide() {
