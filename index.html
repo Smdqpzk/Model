@@ -88,7 +88,11 @@
         #slide-title::before { content: ''; width: 12px; height: 40px; background-color: var(--danger-color); display: block; }
         .is-cover #slide-title::before { display: none; }
 
-        #slide-content { font-size: 1.2em; line-height: 1.8; color: var(--text-sub); min-height: 150px; white-space: pre-line; }
+        #slide-content { font-size: 1.2em; line-height: 1.8; color: var(--text-sub); min-height: 100px; white-space: pre-line; }
+        
+        /* 圖片樣式 */
+        #slide-img { max-width: 80%; height: auto; border-radius: 8px; margin: 20px 0; border: 1px solid var(--border-color); display: none; }
+
         .author-info { margin-top: auto; color: var(--accent-color); font-weight: bold; font-size: 1.1em; letter-spacing: 0.1em; text-transform: uppercase; }
 
         .page-counter { position: absolute; top: 40px; right: 60px; font-family: monospace; color: #333; font-size: 1.2em; }
@@ -109,6 +113,7 @@
             <div id="text-container">
                 <h1 id="slide-title">載入中...</h1>
                 <p id="slide-content"></p>
+                <img id="slide-img" src="" alt="Project Image">
                 <div id="author" class="author-info"></div>
             </div>
         </div>
@@ -122,13 +127,14 @@
         const titleEl = document.querySelector('#slide-title');
         const contentEl = document.querySelector('#slide-content');
         const authorEl = document.querySelector('#author');
+        const imgEl = document.querySelector('#slide-img');
         const navBarEl = document.querySelector('#nav-bar');
         const pageCounterEl = document.querySelector('#page-counter');
         const textContainer = document.querySelector('#text-container');
         let currentPage = 0;
 
         const slideData = [
-            { title: 'Remote Control Car', content: 'A high-performance DIY project.\nStarted in March.', author: '項正宇', showAuthor: true, hideModel: true, modelSrc: 'Model.glb' },
+            { title: 'Remote Control Car', content: 'A high-performance DIY project.\nStarted in March.', author: '項正宇', showAuthor: true, hideModel: true },
             { title: 'The Motivation', content: 'Pushing the boundaries of small-scale tank simulation.', showAuthor: false, hideModel: true },
             { title: 'Technical Stack', content: 'Materials:\n• Woodstick & Glue\n• ESP32 Core Control\n• SG-90 Servos', showAuthor: false, hideModel: true },
             { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Modes of Operation', content: 'Exploring the different mechanical states of the tank.', showAuthor: false, hideModel: false, TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump"] },
@@ -146,30 +152,31 @@
             { orbit: '585deg 158deg 40%', target: '0.182m 1.249m 1.032m', title: 'Traction TT Motor', content: 'High-torque gearing for all-terrain capability.', showAuthor: false, hideModel: false, TragetPart:"TTMotor" },
             { orbit: '160deg 85deg 30%', target: '0.088m 2.507m -1.562m', title: 'Turret Control', content: '360-degree rotation for target tracking.', showAuthor: false, hideModel: false, TragetPart:"TopMotor" },
             { orbit: '90deg 85deg 20%', target: '-0.319m 2.251m 0.190m', title: 'Loading Pump', content: 'Automated loading mechanism for simulation.', showAuthor: false, hideModel: false, TragetPart:"Pump" },
-            { orbit: '123deg 75deg 105%', target: '0m 1m 0m', title: 'Conclusion', content: 'Thank you for exploring the Puma Tank V3.', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false, modelSrc: 'Mod.glb' }
+            { orbit: '123deg 75deg 105%', target: '0m 1m 0m', title: 'Conclusion', content: 'Thank you for exploring the Puma Tank V3.', author: 'Project: Remote Control Car', showAuthor: true, hideModel: false, modelSrc: 'Mod.glb', imageSrc: 'final.jpg' }
         ];
 
         async function updateSlide() {
             const data = slideData[currentPage];
 
-            // 處理封面模式樣式
-            if (data.hideModel) {
-                deck.classList.add('is-cover');
+            // 處理封面模式
+            if (data.hideModel) deck.classList.add('is-cover');
+            else deck.classList.remove('is-cover');
+
+            // 處理圖片顯示
+            if (data.imageSrc) {
+                imgEl.src = data.imageSrc;
+                imgEl.style.display = 'block';
             } else {
-                deck.classList.remove('is-cover');
+                imgEl.style.display = 'none';
             }
 
             // 更新模型 (不阻塞 UI)
             if (!data.hideModel) {
                 const targetSrc = data.modelSrc || 'Model.glb';
-                if (mv.src.indexOf(targetSrc) === -1) {
-                    mv.src = targetSrc;
-                }
+                if (mv.src.indexOf(targetSrc) === -1) mv.src = targetSrc;
 
-                // 異步執行模型細節更新，避免卡住
                 mv.updateComplete.then(() => {
                     if (mv.model) {
-                        // 塗色邏輯
                         if (data.TragetPart) {
                             const targets = Array.isArray(data.TragetPart) ? data.TragetPart : [data.TragetPart];
                             mv.model.materials.forEach(mat => {
@@ -180,7 +187,6 @@
                             mv.model.materials.forEach(mat => mat.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]));
                         }
 
-                        // 動畫控制
                         if (data.playAnimation) {
                             mv.animationName = data.Animation;
                             mv.play({ repetitions: 1 });
@@ -194,7 +200,7 @@
                 });
             }
 
-            // 同步更新 UI (保證流暢)
+            // 更新文字與 UI
             textContainer.classList.remove('fade-in');
             void textContainer.offsetWidth;
             textContainer.classList.add('fade-in');
