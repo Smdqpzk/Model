@@ -2,92 +2,65 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puma Tank V3 - Presentation</title>
+    <title>English Presentation</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        :root {
-            --bg-body: #050505;
-            --card-bg: #0a0a0a;
-            --text-main: #ffffff;
-            --text-sub: #888888;
-            --accent-color: #00e5ff;
-            --danger-color: #ff3d00;
-            --border-color: #222222;
-        }
-
-        body { font-family: 'SF Pro Display', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-
-        .slide-deck { display: flex; width: 90vw; height: 85vh; background: var(--card-bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); position: relative; }
-
-        /* 模型區 */
-        .model-section { flex: 1.6; background: #000; position: relative; transition: flex 0.5s ease; }
-        model-viewer { width: 100%; height: 100%; }
-
-        /* 資訊區 */
-        .info-section { flex: 1; padding: 60px; display: flex; flex-direction: column; border-left: 1px solid var(--border-color); position: relative; transition: all 0.5s ease; }
+        :root { --bg-color: #030303; --text-main: #f0f0f0; --text-sub: #bdc1c6; --accent-color: #00e5ff; --danger-color: #ff3d00; --border-color: #2a2a2a; }
+        body { font-family: sans-serif; background-color: #000; color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 第一頁封面樣式 */
-        .info-section.is-cover { flex: 2; border-left: none; align-items: center; text-align: center; justify-content: center; }
-        .info-section.is-cover #slide-title { font-size: 4em; }
-
-        #text-container { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 80px; }
+        .slide-deck { display: flex; width: 90vw; height: 80vh; background: var(--bg-color); border-radius: 4px; border: 1px solid var(--border-color); overflow: hidden; position: relative; }
         
-        #slide-title { font-size: 2.2em; font-weight: 900; margin: 0 0 20px 0; text-transform: uppercase; display: inline-flex; align-items: center; gap: 15px; }
+        /* 頁面內容區域 */
+        .content-area { display: flex; flex: 1; height: calc(100% - 10px); }
+        .model-section { flex: 1.6; background: #010101; position: relative; transition: all 0.5s ease; }
+        .info-section { flex: 1; padding: 60px 40px; display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--border-color); transition: all 0.5s ease; }
+        
+        /* 封面模式 */
+        .is-cover .model-section { display: none; }
+        .is-cover .info-section { flex: 1; border-left: none; align-items: center; text-align: center; }
+        .is-cover #slide-title { font-size: 3.5em; }
+
+        #slide-title { font-size: 2.2em; font-weight: 900; text-transform: uppercase; margin: 0 0 20px 0; display: inline-flex; align-items: center; gap: 15px; }
         #slide-title::before { content: ''; width: 15px; height: 15px; background-color: var(--danger-color); clip-path: polygon(100% 0, 100% 50%, 50% 100%, 0% 100%, 0 0); }
         
-        #slide-content { font-size: 1.1em; color: var(--text-sub); line-height: 1.8; white-space: pre-line; }
-
-        #slide-img-container { margin: 30px 0; }
-        #slide-img { max-width: 100%; max-height: 30vh; border: 1px solid var(--accent-color); display: none; }
-
-        .author-info { margin-top: 30px; color: var(--accent-color); font-family: monospace; }
-
-        /* 底部導航條 */
-        .nav-footer { position: absolute; bottom: 30px; left: 40px; right: 40px; height: 30px; display: flex; align-items: center; gap: 20px; }
-        .nav-progress-container { flex: 1; height: 4px; background: #1a1a1a; }
-        .nav-progress-bar { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--accent-color); }
-        .page-counter { font-family: monospace; color: var(--text-sub); font-size: 0.9em; }
+        #slide-content { font-size: 1.1em; color: var(--text-sub); line-height: 1.8; white-space: pre-line; margin-bottom: 20px; }
+        #slide-img { max-width: 200px; display: none; border: 1px solid var(--accent-color); }
+        
+        /* 進度條改為固定在最下方 */
+        .nav-progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; background: #1a1a1a; }
+        .nav-progress-bar { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.4s ease; }
     </style>
 </head>
 <body>
-    <div class="slide-deck">
-        <div class="model-section" id="model-section">
-            <model-viewer id="presenter" src="Model.glb" shadow-intensity="1.5" environment-image="neutral" camera-controls interaction-prompt="none"></model-viewer>
-        </div>
-        <div class="info-section" id="info-section">
-            <div id="text-container">
-                <h1 id="slide-title">載入中...</h1>
+    <div class="slide-deck" id="deck">
+        <div class="content-area">
+            <div class="model-section">
+                <model-viewer id="presenter" src="Model.glb" shadow-intensity="1.5" camera-controls interaction-prompt="none"></model-viewer>
+            </div>
+            <div class="info-section" id="info-section">
+                <h1 id="slide-title"></h1>
                 <p id="slide-content"></p>
-                <div id="slide-img-container"><img id="slide-img" src="" alt="Image"></div>
-                <div id="author" class="author-info"></div>
-            </div>
-            
-            <div class="nav-footer">
-                <div class="nav-progress-container"><div id="nav-bar" class="nav-progress-bar"></div></div>
-                <div id="page-counter" class="page-counter">01 / 19</div>
+                <img id="slide-img" src="">
+                <div id="author" style="color: var(--accent-color); margin-top: 20px;"></div>
             </div>
         </div>
+        <div class="nav-progress-container"><div id="nav-bar" class="nav-progress-bar"></div></div>
     </div>
 
     <script>
         const mv = document.querySelector('#presenter');
-        const modelSection = document.querySelector('#model-section');
-        const infoSection = document.querySelector('#info-section');
+        const deck = document.querySelector('#deck');
         const titleEl = document.querySelector('#slide-title');
         const contentEl = document.querySelector('#slide-content');
+        const imgEl = document.querySelector('#slide-img');
         const authorEl = document.querySelector('#author');
         const navBarEl = document.querySelector('#nav-bar');
-        const pageCounterEl = document.querySelector('#page-counter');
-        const imgEl = document.querySelector('#slide-img');
-        const imgContainerEl = document.querySelector('#slide-img-container');
         
         let currentPage = 0;
         const slideData = [
-            { orbit: '131deg 74deg 105%', title: 'Remote Control Car', content: 'A high-performance DIY tank project\nStarted in March', author: '項正宇', showAuthor: true, hideModel: true },
-            { orbit: '210deg 80deg 90%', title: 'Motivation', content: 'Just for fun.\nTesting limits of small-scale automation.', showAuthor: false, hideModel: false, modelSrc: 'Model.glb' },
-            /* ... 這裡放入你原本的 slideData ... */
-            { orbit: '90deg 85deg 190', target: '0m 1m 0m', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: false },
+            { orbit: '131deg 74deg 105%', target: '0m 1m 0m', title: 'Remote Control Car', content: 'Works that started in March', author: '項正宇', showAuthor: true, hideModel: true, modelSrc: 'Model.glb' },
+            { orbit: '210deg 80deg 90%', target: '0m 1m 0m', title: 'Why I made a remote control car', content: 'Because I\'m so boring', showAuthor: false, hideModel: true },
+            { orbit: '90deg 85deg 190', target: '0m 1m 0m', title: 'About the car(Tank)', content: 'Materials:\n• Woodstick & Glue\n• ESP32, L298N, SG-90\n• 1.3" Displayer, TT motor\n• Pump & Solenoid Valve', showAuthor: false, hideModel: true },
             { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Structure display', content: 'Modes', showAuthor: false, hideModel: false, playAnimation: false, TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump"] },
             { orbit: '90deg 85deg 190%', target: '0m 1m 0m', title: 'Structure display', content: 'Modules', showAuthor: false, hideModel: false, playAnimation: false, TragetPart:["ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
             { orbit: '210deg 80deg 90%', target: '0m 1m 0m', title: 'Structure display', content: 'Overall Structure', showAuthor: false, hideModel: false, playAnimation: true, Animation:"OPEN", TragetPart:["DirMotor","Power","TTMotor","TopMotor","Pump","ESP32","L298N","Displayer","ANTENNA","V","Relay"] },
@@ -108,21 +81,31 @@
 
         async function updateSlide() {
             const data = slideData[currentPage];
-            // 封面模式邏輯
-            if (currentPage === 0) {
-                modelSection.style.display = 'none';
-                infoSection.classList.add('is-cover');
-            } else {
-                modelSection.style.display = 'block';
-                infoSection.classList.remove('is-cover');
-                // 模型與標記邏輯... (保持原有)
+            deck.classList.toggle('is-cover', data.hideModel);
+
+            if (!data.hideModel) {
+                if (mv.src !== (data.modelSrc || 'Model.glb')) mv.src = data.modelSrc || 'Model.glb';
+                await mv.updateComplete;
+                if (mv.model && data.TragetPart) {
+                    mv.model.materials.forEach(mat => {
+                        const isTarget = Array.isArray(data.TragetPart) ? data.TragetPart.includes(mat.name) : (data.TragetPart === mat.name);
+                        mat.pbrMetallicRoughness.setBaseColorFactor(isTarget ? [1, 1, 1, 1] : [0.15, 0.15, 0.15, 1.0]);
+                    });
+                }
+                if (data.playAnimation) { mv.animationName = data.Animation; mv.play(); }
+                else { mv.pause(); mv.currentTime = 0; mv.cameraOrbit = data.orbit; }
+                mv.cameraTarget = data.target || "auto auto auto";
             }
-            // 更新文字與狀態...
+
             titleEl.innerText = data.title;
             contentEl.innerText = data.content;
-            pageCounterEl.innerText = `${(currentPage + 1).toString().padStart(2, '0')} / ${slideData.length.toString().padStart(2, '0')}`;
+            authorEl.innerText = data.showAuthor ? data.author : '';
+            imgEl.style.display = data.imgSrc ? 'block' : 'none';
+            if (data.imgSrc) imgEl.src = data.imgSrc;
+            
             navBarEl.style.width = `${((currentPage + 1) / slideData.length) * 100}%`;
         }
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' && currentPage < slideData.length - 1) { currentPage++; updateSlide(); }
             else if (e.key === 'ArrowLeft' && currentPage > 0) { currentPage--; updateSlide(); }
